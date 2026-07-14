@@ -28,23 +28,26 @@
 
 ## Version 0.3 — Candidate Matching
 
-- [ ] Create structured candidate profile
-- [ ] Parse resume content
-- [ ] Extract skills and experience requirements
-- [ ] Add deterministic match scoring
+- [x] Create structured candidate profile
+- [x] Build deterministic rule-based matcher
+- [ ] Improve deterministic scoring with category weighting
+- [ ] Add education matching
+- [ ] Add certification matching
+- [ ] Add citizenship and work authorization matching
+- [ ] Add experience-level matching
 - [ ] Add semantic embedding similarity
-- [ ] Rank jobs by relevance
-- [ ] Store match scores in the database
+- [ ] Combine rule score and embedding score
+- [ ] Store detailed match explanations
 
 ## Version 0.4 — AI Recommendation Layer
 
-- [ ] Add structured LLM scoring
+- [ ] Integrate LLM evaluation
 - [ ] Generate strengths and gaps
-- [ ] Produce evidence-grounded recommendations
+- [ ] Generate "Apply / Consider / Skip" recommendations
 - [ ] Add RAG over resume sections
 - [ ] Validate LLM output with Pydantic
 - [ ] Add confidence scores
-- [ ] Add cost and latency tracking
+- [ ] Compare LLM recommendations with rule-based scoring
 
 ## Version 0.5 — Alerts and Dashboard
 
@@ -73,3 +76,14 @@
 - [ ] Deploy dashboard
 - [ ] Add production logging and monitoring
 - [ ] Document installation and usage
+
+## Long-Term Vision
+
+- [ ] Support 100+ companies
+- [ ] Multiple resume profiles (AI, Backend, Data, etc.)
+- [ ] Personalized application tracker
+- [ ] Resume optimization suggestions for each job
+- [ ] Cover letter generation
+- [ ] Interview preparation based on job description
+- [ ] Recruiter analytics dashboard
+- [ ] Cloud deployment (Azure)

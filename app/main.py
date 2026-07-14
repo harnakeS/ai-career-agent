@@ -1,16 +1,30 @@
-from app.collectors.remotive import RemotiveCollector
-from app.database.database import create_database
-from app.pipeline.job_pipeline import JobPipeline
+from app.config.candidate import candidate
+from app.matching.rule_matcher import calculate_rule_match
+from app.models.job import JobPosting
 
 
 def main() -> None:
-    create_database()
+    job = JobPosting(
+        company="Example Company",
+        requisition_id="JR1001",
+        title="Junior Software Engineer",
+        location="New York, NY",
+        description=(
+            "Build software applications using Python, SQL, Git, "
+            "Linux, and Azure. This is an entry-level opportunity."
+        ),
+        application_url="https://example.com/jobs/JR1001",
+    )
 
-    collector = RemotiveCollector()
+    result = calculate_rule_match(candidate, job)
 
-    pipeline = JobPipeline(collector)
+    print(f"Match score: {result.score}/100")
+    print(f"Matched skills: {result.matched_skills}")
+    print(f"Matched roles: {result.matched_roles}")
+    print(f"Location match: {result.location_match}")
 
-    pipeline.run()
+    for reason in result.reasons:
+        print(f"- {reason}")
 
 
 if __name__ == "__main__":

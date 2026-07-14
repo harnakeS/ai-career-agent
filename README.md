@@ -1,1 +1,1 @@
-# ai-career-agent
+# An AI-powered career agent that continuously monitors software engineering opportunities, ranks them using a hybrid matching engine, and recommends the highest-value applications based on a structured candidate profile.
