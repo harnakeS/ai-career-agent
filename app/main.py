@@ -1,29 +1,19 @@
-from app.collectors.base import JobCollector
-from app.models.job import JobPosting
-
-
-class ExampleCollector(JobCollector):
-    """Temporary collector used to test the interface."""
-
-    def collect_jobs(self) -> list[JobPosting]:
-        return [
-            JobPosting(
-                company="Example Company",
-                requisition_id="JR12345",
-                title="Software Engineer I",
-                location="New York, NY",
-                description="Develop and maintain software applications.",
-                application_url="https://example.com/jobs/JR12345",
-            )
-        ]
+from app.collectors.remotive import RemotiveCollector
 
 
 def main() -> None:
-    collector = ExampleCollector()
+    collector = RemotiveCollector()
     jobs = collector.collect_jobs()
 
-    for job in jobs:
-        print(job)
+    print(f"Collected {len(jobs)} jobs.")
+
+    for job in jobs[:5]:
+        print(
+            f"{job.company} | "
+            f"{job.title} | "
+            f"{job.location} | "
+            f"{job.application_url}"
+        )
 
 
 if __name__ == "__main__":
