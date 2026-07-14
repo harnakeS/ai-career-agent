@@ -1,19 +1,9 @@
-from app.collectors.remotive import RemotiveCollector
+from app.database.database import create_database
 
 
 def main() -> None:
-    collector = RemotiveCollector()
-    jobs = collector.collect_jobs()
-
-    print(f"Collected {len(jobs)} jobs.")
-
-    for job in jobs[:5]:
-        print(
-            f"{job.company} | "
-            f"{job.title} | "
-            f"{job.location} | "
-            f"{job.application_url}"
-        )
+    create_database()
+    print("Database initialized successfully.")
 
 
 if __name__ == "__main__":
