@@ -133,3 +133,23 @@ They do not:
 ### Reason
 
 This separation of concerns makes each component easier to test, replace, and maintain.
+
+
+## ADR-009: Use a Deterministic Matching Baseline
+
+**Status:** Accepted
+
+### Decision
+
+Implement a deterministic rule-based matching engine before introducing embeddings or LLM reasoning.
+
+### Reason
+
+A deterministic baseline provides:
+
+- Explainable recommendations
+- Low-cost evaluation
+- Fast execution
+- A benchmark for future AI models
+
+Semantic embeddings and LLM evaluation will be layered on top of this baseline rather than replacing it.

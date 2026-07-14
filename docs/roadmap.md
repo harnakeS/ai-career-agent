@@ -30,14 +30,15 @@
 
 - [x] Create structured candidate profile
 - [x] Build deterministic rule-based matcher
-- [ ] Improve deterministic scoring with category weighting
+- [x] Integrate deterministic scoring into the processing pipeline
+- [x] Persist match scores in the database
+- [ ] Improve category weighting
 - [ ] Add education matching
 - [ ] Add certification matching
-- [ ] Add citizenship and work authorization matching
-- [ ] Add experience-level matching
+- [ ] Add citizenship matching
+- [ ] Add experience matching
 - [ ] Add semantic embedding similarity
-- [ ] Combine rule score and embedding score
-- [ ] Store detailed match explanations
+- [ ] Combine rule and embedding scores
 
 ## Version 0.4 — AI Recommendation Layer
 

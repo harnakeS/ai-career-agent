@@ -46,3 +46,25 @@ Established the core backend architecture for the AI Career Agent.
 - Integrate the rule matcher into the processing pipeline.
 - Begin semantic embedding-based similarity scoring.
 - Support additional ATS platforms.
+
+
+## 2026-07-14 (Continued)
+
+### Implemented
+
+- Added the initial candidate profile.
+- Built the first deterministic job matcher.
+- Integrated match scoring into the processing pipeline.
+- Stored match scores in SQLite.
+
+### Lessons Learned
+
+- Simple keyword matching produces conservative scores.
+- False-positive substring matching required more robust token matching.
+- A deterministic baseline will provide a useful benchmark before adding embeddings and LLM reasoning.
+
+### Next
+
+- Improve rule weighting.
+- Introduce semantic embeddings.
+- Support multiple collectors.
