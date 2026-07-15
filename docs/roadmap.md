@@ -60,27 +60,25 @@ Determine how well a job matches my background before introducing AI.
 
 ---
 
-# Milestone 3 — Resume Intelligence 🚧 In Progress
-
-## Goal
-
-Automatically transform a resume into structured candidate data.
+## Milestone 3 — Resume Intelligence 🚧 In Progress
 
 ### Completed
 
 - [x] PDF extraction
-- [x] Text normalization
+- [x] Resume text normalization
 - [x] Resume section extraction
 - [x] Skills parsing
-- [x] Resume parsing service
+- [x] Education parsing
+- [x] Experience parsing
+- [x] Project parsing
+- [x] Employment classification
 
 ### Remaining
 
-- [ ] Education parser
-- [ ] Work experience parser
-- [ ] Project parser
-- [ ] CandidateProfile generation
-- [ ] Resume version support
+- [ ] CandidateProfile Builder
+- [ ] Resume → Matching integration
+- [ ] Resume version management
+- [ ] Multiple resume layouts
 
 ---
 

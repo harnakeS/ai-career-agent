@@ -1,4 +1,4 @@
-from app.resume.skills_parser import (
+from app.parsing.skills_parser import (
     parse_skills_section,
     split_pipe_separated_values,
 )

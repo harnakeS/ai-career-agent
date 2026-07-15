@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from app.resume.pdf_parser import (
+from app.parsing.pdf_parser import (
     ResumeParsingError,
     clean_resume_text,
     extract_pdf_text,

@@ -1,19 +1,18 @@
-from app.resume.resume_parser import parse_resume
+from app.parsing.resume_parser import parse_resume
 
 
 def main() -> None:
     resume = parse_resume("data/resume.pdf")
 
-    print("Resume parsed successfully.")
-    print("---------------------------")
-    print(f"Programming languages: {resume.skills.programming_languages}")
-    print(f"Frameworks: {resume.skills.frameworks}")
-    print(f"Tools: {resume.skills.tools}")
-    print(f"Concepts: {resume.skills.concepts}")
-    print(f"Certifications: {resume.skills.certifications}")
-    print()
-    print("Education section:")
-    print(resume.sections.education)
+    print("Projects parsed successfully.")
+    print("-----------------------------")
+
+    for project in resume.projects:
+        print(f"Name: {project.name}")
+        print(f"Duration: {project.duration_months} months")
+        print(f"Technologies: {project.technologies}")
+        print(f"Bullets: {len(project.bullets)}")
+        print()
 
 
 if __name__ == "__main__":

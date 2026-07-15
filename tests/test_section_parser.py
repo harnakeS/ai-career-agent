@@ -1,6 +1,6 @@
 import pytest
 
-from app.resume.section_parser import split_resume_sections
+from app.parsing.section_parser import split_resume_sections
 
 
 SAMPLE_RESUME = """Harnake Sahi
