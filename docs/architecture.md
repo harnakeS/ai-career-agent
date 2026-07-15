@@ -258,6 +258,10 @@ Current scoring considers:
 The matcher returns a structured `MatchResult` containing:
 
 - Overall score
+- Technical score
+- Role-alignment score
+- Location score
+- Early-career score
 - Matched skills
 - Matched role categories
 - Location-match status
@@ -271,6 +275,17 @@ For example:
 - `C` does not match the letter inside a word such as `applications`.
 
 The current deterministic system is intentionally conservative. It serves as an explainable baseline before semantic embeddings and LLM reasoning are introduced.
+
+The deterministic matcher is divided into reusable category-scoring components:
+
+- Technical skill alignment
+- Desired-role alignment
+- Location alignment
+- Early-career alignment
+
+Each component returns an independent score and explanation. The main rule matcher combines these category results into the overall score.
+
+This structure allows future categories, such as education, experience, certification, and work authorization, to be added without turning the main matching function into a single large scoring method.
 
 #### Planned Hybrid Matching Architecture
 

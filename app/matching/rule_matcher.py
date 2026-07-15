@@ -3,6 +3,12 @@ from dataclasses import dataclass
 
 from app.models.candidate import CandidateProfile
 from app.models.job import JobPosting
+from app.matching.components import (
+    score_early_career,
+    score_location,
+    score_role_alignment,
+    score_technical_skills,
+)
 
 
 @dataclass(frozen=True)
@@ -10,6 +16,12 @@ class MatchResult:
     """Result produced by the deterministic job matcher."""
 
     score: float
+
+    technical_score: float
+    role_score: float
+    location_score: float
+    early_career_score: float
+
     matched_skills: list[str]
     matched_roles: list[str]
     location_match: bool
@@ -75,36 +87,10 @@ def calculate_rule_match(
         for location in candidate.preferred_locations
     )
 
-    reasons: list[str] = []
+    technical_result = score_technical_skills(matched_skills)
+    role_result = score_role_alignment(matched_roles)
+    location_result = score_location(candidate, location_match)
 
-    # Technical alignment: maximum 55 points.
-    technical_score = min(len(matched_skills) * 8, 55)
-
-    if matched_skills:
-        reasons.append(
-            f"Matched technologies: {', '.join(matched_skills)}."
-        )
-    else:
-        reasons.append("No explicit candidate technologies were matched.")
-
-    # Desired-role alignment: maximum 25 points.
-    role_score = 25 if matched_roles else 0
-
-    if matched_roles:
-        reasons.append(
-            f"Job title aligns with: {', '.join(matched_roles)}."
-        )
-
-    # Location alignment: maximum 10 points.
-    location_score = 10 if location_match else 0
-
-    if location_match:
-        reasons.append("Location matches a stated preference.")
-    elif candidate.willing_to_relocate:
-        location_score = 5
-        reasons.append("Location is outside preferences, but relocation is allowed.")
-
-    # Early-career language: maximum 10 points.
     early_career_terms = [
         "entry level",
         "early career",
@@ -121,21 +107,32 @@ def calculate_rule_match(
         for term in early_career_terms
     )
 
-    early_career_score = 10 if early_career_match else 0
-
-    if early_career_match:
-        reasons.append("Posting contains early-career language.")
+    early_career_result = score_early_career(
+        job,
+        early_career_match,
+    )
 
     total_score = min(
-        technical_score
-        + role_score
-        + location_score
-        + early_career_score,
+        technical_result.score
+        + role_result.score
+        + location_result.score
+        + early_career_result.score,
         100,
+    )
+
+    reasons = (
+        technical_result.reasons
+        + role_result.reasons
+        + location_result.reasons
+        + early_career_result.reasons
     )
 
     return MatchResult(
         score=float(total_score),
+        technical_score=technical_result.score,
+        role_score=role_result.score,
+        location_score=location_result.score,
+        early_career_score=early_career_result.score,
         matched_skills=matched_skills,
         matched_roles=matched_roles,
         location_match=location_match,

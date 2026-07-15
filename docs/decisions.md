@@ -153,3 +153,27 @@ A deterministic baseline provides:
 - A benchmark for future AI models
 
 Semantic embeddings and LLM evaluation will be layered on top of this baseline rather than replacing it.
+
+---
+
+## ADR-010: Separate Matching Categories into Independent Components
+
+**Status:** Accepted
+
+### Decision
+
+Implement technical, role, location, and early-career scoring as independent components coordinated by the main rule matcher.
+
+### Reason
+
+Separating the scoring categories:
+
+- Keeps the main matching function small
+- Makes individual scoring rules easier to test
+- Allows categories to evolve independently
+- Simplifies adding education, experience, certification, and AI-based scores later
+- Produces more explainable recommendation results
+
+### Alternatives Considered
+
+Keeping all scoring logic inside one function was simpler initially, but it would become difficult to maintain as additional matching categories were introduced.

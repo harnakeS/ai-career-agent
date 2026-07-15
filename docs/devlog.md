@@ -68,3 +68,27 @@ Established the core backend architecture for the AI Career Agent.
 - Improve rule weighting.
 - Introduce semantic embeddings.
 - Support multiple collectors.
+
+---
+
+## 2026-07-15
+
+### Implemented
+
+- Refactored deterministic scoring into reusable matching components.
+- Added separate technical, role, location, and early-career scores.
+- Preserved the overall matching behavior after the refactor.
+- Added tests for category-level scores and partial relocation scoring.
+- Increased the test suite to 10 passing tests.
+
+### Lessons Learned
+
+- Splitting scoring categories makes the matching engine easier to extend and test.
+- Category-level scores provide better explainability than a single overall number.
+- Regression tests allowed the internal architecture to change without altering expected behavior.
+
+### Next
+
+- Add experience alignment as a matching category.
+- Add education and certification matching.
+- Persist detailed category scores and explanations.

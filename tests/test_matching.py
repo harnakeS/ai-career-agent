@@ -48,11 +48,16 @@ def test_high_score_for_strong_entry_level_match() -> None:
     result = calculate_rule_match(candidate, job)
 
     assert result.score == 85.0
+    assert result.technical_score == 40.0
+    assert result.role_score == 25.0
+    assert result.location_score == 10.0
+    assert result.early_career_score == 10.0
     assert "Python" in result.matched_skills
     assert "SQL" in result.matched_skills
     assert "C" not in result.matched_skills
     assert "Software Engineer" in result.matched_roles
     assert result.location_match
+    
 
 
 def test_lower_score_for_unrelated_role() -> None:
@@ -68,3 +73,19 @@ def test_lower_score_for_unrelated_role() -> None:
     assert result.matched_skills == []
     assert result.matched_roles == []
     assert not result.location_match
+
+def test_relocation_receives_partial_location_score() -> None:
+    job = create_job(
+        title="Software Engineer",
+        description="Build applications using Python.",
+        location="Austin, TX",
+    )
+
+    result = calculate_rule_match(candidate, job)
+
+    assert result.location_score == 5.0
+    assert not result.location_match
+    assert any(
+        "relocation is allowed" in reason
+        for reason in result.reasons
+    )

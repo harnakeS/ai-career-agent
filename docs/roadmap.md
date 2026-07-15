@@ -32,6 +32,8 @@
 - [x] Build deterministic rule-based matcher
 - [x] Integrate deterministic scoring into the processing pipeline
 - [x] Persist match scores in the database
+- [x] Refactor deterministic scoring into reusable category components
+- [x] Add category-level score breakdowns
 - [ ] Improve category weighting
 - [ ] Add education matching
 - [ ] Add certification matching
