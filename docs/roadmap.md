@@ -1,92 +1,226 @@
-# Roadmap
+# AI Career Agent Roadmap
 
-## Version 0.1 — Core Job Collection
+## Vision
 
-- [x] Create standardized `JobPosting` model
-- [x] Create base collector interface
-- [x] Implement first live collector
-- [x] Configure SQLite database
-- [x] Create jobs table
-- [x] Implement insert and update behavior
-- [x] Prevent duplicate job records
-- [x] Add basic eligibility filters
-- [x] Add unit tests for filtering
-- [ ] Create reusable job-processing pipeline
+Build an AI-powered career agent that automatically discovers, evaluates, and recommends software engineering opportunities based on a structured understanding of my resume and career goals.
 
-## Version 0.2 — Ten-Company Monitoring
+The first objective is to create a production-quality personal career assistant that I can rely on during my own job search.
 
-- [ ] Support multiple collectors in one run
-- [ ] Add company configuration
-- [ ] Add Greenhouse collector
-- [ ] Add Lever collector
-- [ ] Add Workday collector
-- [ ] Track ten selected companies
-- [ ] Add retry handling
-- [ ] Add structured logging
-- [ ] Detect inactive or closed jobs
-- [ ] Add collector tests
+Commercial SaaS features (authentication, subscriptions, billing, multi-user support, etc.) are intentionally deferred until the personal-use version is complete.
 
-## Version 0.3 — Candidate Matching
+---
 
-- [x] Create structured candidate profile
-- [x] Build deterministic rule-based matcher
-- [x] Integrate deterministic scoring into the processing pipeline
-- [x] Persist match scores in the database
-- [x] Refactor deterministic scoring into reusable category components
-- [x] Add category-level score breakdowns
-- [ ] Improve category weighting
-- [ ] Add education matching
-- [ ] Add certification matching
-- [ ] Add citizenship matching
-- [ ] Add experience matching
-- [ ] Add semantic embedding similarity
-- [ ] Combine rule and embedding scores
+# Milestone 1 — Core Backend ✅ Complete
 
-## Version 0.4 — AI Recommendation Layer
+## Goal
 
-- [ ] Integrate LLM evaluation
-- [ ] Generate strengths and gaps
-- [ ] Generate "Apply / Consider / Skip" recommendations
-- [ ] Add RAG over resume sections
-- [ ] Validate LLM output with Pydantic
-- [ ] Add confidence scores
-- [ ] Compare LLM recommendations with rule-based scoring
+Build the core infrastructure required to collect, process, and store job postings.
 
-## Version 0.5 — Alerts and Dashboard
+### Completed
 
-- [ ] Add email notifications
-- [ ] Prevent duplicate alerts
-- [ ] Build Streamlit dashboard
-- [ ] Add application-status tracking
-- [ ] Add filtering by company, score, location, and date
-- [ ] Add application links
-- [ ] Add analytics
+- [x] Standardized `JobPosting` model
+- [x] Collector abstraction
+- [x] Live Remotive collector
+- [x] SQLite database
+- [x] SQLAlchemy models
+- [x] Repository pattern
+- [x] Processing pipeline
+- [x] Duplicate detection
+- [x] Database persistence
+- [x] Unit testing framework
+- [x] Project documentation
 
-## Version 0.6 — Evaluation
+---
 
-- [ ] Build a manually labeled job dataset
-- [ ] Compare keyword, embedding, and LLM approaches
-- [ ] Measure precision, recall, and F1 score
-- [ ] Track false-positive recommendations
-- [ ] Tune alert thresholds
+# Milestone 2 — Matching Engine 🚧 In Progress
 
-## Version 1.0 — Deployment
+## Goal
 
-- [ ] Migrate from SQLite to PostgreSQL
-- [ ] Add pgvector
-- [ ] Containerize with Docker
-- [ ] Deploy scheduled collection jobs
-- [ ] Deploy dashboard
-- [ ] Add production logging and monitoring
-- [ ] Document installation and usage
+Determine how well a job matches my background before introducing AI.
 
-## Long-Term Vision
+### Completed
 
-- [ ] Support 100+ companies
-- [ ] Multiple resume profiles (AI, Backend, Data, etc.)
-- [ ] Personalized application tracker
-- [ ] Resume optimization suggestions for each job
+- [x] Structured candidate profile
+- [x] Deterministic rule matcher
+- [x] Technical skill matching
+- [x] Role alignment
+- [x] Location alignment
+- [x] Early-career scoring
+- [x] Category-based scoring components
+- [x] Explainable match reasons
+- [x] Match score persistence
+
+### Remaining
+
+- [ ] Experience matching
+- [ ] Education matching
+- [ ] Certification matching
+- [ ] Citizenship / work authorization matching
+- [ ] Improved category weighting
+
+---
+
+# Milestone 3 — Resume Intelligence 🚧 In Progress
+
+## Goal
+
+Automatically transform a resume into structured candidate data.
+
+### Completed
+
+- [x] PDF extraction
+- [x] Text normalization
+- [x] Resume section extraction
+- [x] Skills parsing
+- [x] Resume parsing service
+
+### Remaining
+
+- [ ] Education parser
+- [ ] Work experience parser
+- [ ] Project parser
+- [ ] CandidateProfile generation
+- [ ] Resume version support
+
+---
+
+# Milestone 4 — AI Recommendation Engine
+
+## Goal
+
+Move beyond keyword matching using AI.
+
+### Planned
+
+- [ ] Semantic embeddings
+- [ ] Similarity search
+- [ ] Hybrid scoring
+- [ ] LLM evaluation
+- [ ] Explainable AI recommendations
+- [ ] Recommendation confidence score
+
+---
+
+# Milestone 5 — Company Monitoring
+
+## Goal
+
+Monitor the companies I actually want to work for.
+
+### Planned
+
+- [ ] Greenhouse collector
+- [ ] Lever collector
+- [ ] Workday collector
+- [ ] Ashby collector
+- [ ] SmartRecruiters collector
+- [ ] Company configuration
+- [ ] Multi-collector execution
+- [ ] Closed-job detection
+
+Target companies include:
+
+- Amazon
+- Google
+- NVIDIA
+- Meta
+- Apple
+- JPMorgan
+- Bank of America
+- BlackRock
+- Barclays
+- Johnson & Johnson
+- Fiserv
+- Wells Fargo
+- eBay
+
+---
+
+# Milestone 6 — Notifications
+
+## Goal
+
+Automatically notify me when a worthwhile opportunity appears.
+
+### Planned
+
+- [ ] Email notifications
+- [ ] Daily summary
+- [ ] High-priority alerts
+- [ ] Duplicate-notification prevention
+- [ ] Configurable score thresholds
+
+---
+
+# Milestone 7 — Career Dashboard
+
+## Goal
+
+Provide a single interface for managing my job search.
+
+### Planned
+
+- [ ] Streamlit dashboard
+- [ ] Search jobs
+- [ ] Sort by score
+- [ ] Filter by company
+- [ ] Filter by location
+- [ ] Saved jobs
+- [ ] Application tracker
+- [ ] Job analytics
+
+---
+
+# Milestone 8 — AI Career Assistant
+
+## Goal
+
+Help prepare high-quality applications.
+
+### Planned
+
+- [ ] Resume optimization
+- [ ] Resume gap analysis
 - [ ] Cover letter generation
-- [ ] Interview preparation based on job description
-- [ ] Recruiter analytics dashboard
-- [ ] Cloud deployment (Azure)
+- [ ] Interview preparation
+- [ ] Company research summaries
+- [ ] Personalized application recommendations
+
+---
+
+# Milestone 9 — Personal MVP ✅
+
+## Goal
+
+A complete system that I can use throughout my own job search.
+
+### Success Criteria
+
+- [ ] Track at least 10 target companies
+- [ ] Automatically parse my resume
+- [ ] Match jobs using hybrid AI scoring
+- [ ] Receive automated notifications
+- [ ] Manage applications through the dashboard
+- [ ] Generate resume suggestions
+- [ ] Generate cover letters
+- [ ] Provide interview preparation
+- [ ] Run on a scheduled basis without manual intervention
+
+---
+
+# Future (Post-MVP)
+
+Once the personal-use version is complete, the project can evolve into a commercial platform.
+
+Potential future work:
+
+- Multi-user support
+- Authentication
+- PostgreSQL
+- FastAPI backend
+- React frontend
+- Cloud deployment
+- Stripe subscriptions
+- Team accounts
+- Recruiter analytics
+- Enterprise integrations

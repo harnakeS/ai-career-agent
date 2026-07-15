@@ -177,3 +177,59 @@ Separating the scoring categories:
 ### Alternatives Considered
 
 Keeping all scoring logic inside one function was simpler initially, but it would become difficult to maintain as additional matching categories were introduced.
+
+---
+
+## ADR-011: Prioritize a Personal-Use MVP Before SaaS Features
+
+**Status:** Accepted
+
+### Decision
+
+Build and validate the application as a reliable single-user job recommendation tool before introducing multi-user or commercial SaaS functionality.
+
+### Reason
+
+The immediate objectives are to:
+
+- Use the application during an active job search
+- Validate the quality of its recommendations
+- Build a complete portfolio-ready project
+- Avoid delaying core functionality with premature infrastructure
+
+### Deferred Work
+
+The following features are intentionally postponed:
+
+- Authentication
+- Multi-user data isolation
+- Subscription billing
+- Usage-based pricing
+- Enterprise-scale infrastructure
+- Production frontend development
+
+---
+
+## ADR-012: Use Deterministic Resume Parsing Before LLM Extraction
+
+**Status:** Accepted
+
+### Decision
+
+Implement the initial resume parser using PDF text extraction, section headings, and deterministic parsing rules before introducing LLM-based extraction.
+
+### Reason
+
+A deterministic parser provides:
+
+- Predictable behavior
+- Low execution cost
+- Fast local processing
+- Easy unit testing
+- A clear baseline for future AI-assisted extraction
+
+The current resume format contains consistent headings and structured skill categories, making deterministic parsing appropriate for the first version.
+
+### Alternatives Considered
+
+Using an LLM for the entire extraction process would support more resume formats, but it would introduce additional cost, latency, nondeterminism, and validation requirements before the core workflow is proven.

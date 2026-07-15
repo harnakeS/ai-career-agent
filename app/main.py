@@ -1,15 +1,19 @@
-from app.collectors.remotive import RemotiveCollector
-from app.database.database import create_database
-from app.pipeline.job_pipeline import JobPipeline
+from app.resume.resume_parser import parse_resume
 
 
 def main() -> None:
-    create_database()
+    resume = parse_resume("data/resume.pdf")
 
-    collector = RemotiveCollector()
-    pipeline = JobPipeline(collector)
-
-    pipeline.run()
+    print("Resume parsed successfully.")
+    print("---------------------------")
+    print(f"Programming languages: {resume.skills.programming_languages}")
+    print(f"Frameworks: {resume.skills.frameworks}")
+    print(f"Tools: {resume.skills.tools}")
+    print(f"Concepts: {resume.skills.concepts}")
+    print(f"Certifications: {resume.skills.certifications}")
+    print()
+    print("Education section:")
+    print(resume.sections.education)
 
 
 if __name__ == "__main__":

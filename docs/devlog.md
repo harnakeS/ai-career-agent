@@ -92,3 +92,35 @@ Established the core backend architecture for the AI Career Agent.
 - Add experience alignment as a matching category.
 - Add education and certification matching.
 - Persist detailed category scores and explanations.
+
+---
+
+## 2026-07-15 — Resume Parser Foundation
+
+### Implemented
+
+- Added PDF resume text extraction using PyMuPDF.
+- Added validation for missing and unsupported files.
+- Normalized spacing, line breaks, and hyphenated words.
+- Split resume content into header, education, skills, work experience, and projects.
+- Parsed programming languages, frameworks, tools, concepts, and certifications.
+- Created a reusable `ParsedResume` service that coordinates the full parsing workflow.
+- Increased the automated test suite to 22 passing tests.
+
+### Challenges
+
+- PDF extraction preserved layout-related line breaks that required normalization.
+- Words split across lines with hyphens needed to be reconstructed.
+- Resume parsing required stable section boundaries before structured fields could be extracted.
+
+### Lessons Learned
+
+- Deterministic parsing is effective when resume sections follow consistent headings.
+- Separating extraction, cleanup, section parsing, and field parsing makes each stage easier to test.
+- A reusable orchestration service keeps parsing logic out of the application entry point.
+
+### Next
+
+- Parse education into structured fields.
+- Parse work experience and projects.
+- Generate a `CandidateProfile` directly from the uploaded resume.

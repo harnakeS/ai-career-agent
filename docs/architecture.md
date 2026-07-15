@@ -67,6 +67,13 @@ app/
 │
 ├── processing/
 │   └── filters.py
+|
+|
+├── resume/
+│   ├── pdf_parser.py
+│   ├── section_parser.py
+│   ├── skills_parser.py
+│   └── resume_parser.py
 │
 └── main.py
 
@@ -172,6 +179,24 @@ The current profile is defined manually in configuration.
 A future version will generate candidate profiles automatically from uploaded resumes and support multiple resume variants.
 
 ---
+
+### Resume Parsing
+
+The resume parsing layer converts a PDF resume into structured data that can later be used to build a `CandidateProfile`.
+
+The current parsing workflow is:
+
+Resume PDF
+    ↓
+PDF Text Extraction
+    ↓
+Text Normalization
+    ↓
+Section Parsing
+    ↓
+Skills Parsing
+    ↓
+ParsedResume
 
 ### Job Processing Pipeline
 
@@ -401,6 +426,11 @@ Existing tests cover:
 - Multiword role matching
 - High-scoring relevant jobs
 - Low-scoring unrelated jobs
+- PDF validation and missing-file handling
+- Resume text cleanup
+- Section extraction
+- Skills-category extraction
+- End-to-end resume parsing orchestration
 
 Tests are added before major features are integrated into the live pipeline.
 
