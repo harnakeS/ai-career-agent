@@ -4,15 +4,15 @@ from app.parsing.candidate_builder import (
     infer_desired_roles,
     sum_experience_months,
 )
-from app.parsing.education_parser import ParsedEducation
-from app.parsing.experience_parser import (
+from app.parsing.resume.education_parser import ParsedEducation
+from app.parsing.resume.experience_parser import (
     EmploymentType,
     ParsedExperience,
 )
-from app.parsing.project_parser import ParsedProject
+from app.parsing.resume.project_parser import ParsedProject
 from app.parsing.resume_parser import ParsedResume
-from app.parsing.section_parser import ResumeSections
-from app.parsing.skills_parser import ParsedSkills
+from app.parsing.resume.section_parser import ResumeSections
+from app.parsing.resume.skills_parser import ParsedSkills
 
 
 def create_parsed_resume() -> ParsedResume:

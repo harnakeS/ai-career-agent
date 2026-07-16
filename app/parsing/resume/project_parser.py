@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from app.parsing.experience_parser import (
+from app.parsing.resume.experience_parser import (
     calculate_duration_months,
     is_date_range_line,
     parse_date_range,

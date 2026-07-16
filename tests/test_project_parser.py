@@ -1,6 +1,6 @@
 import pytest
 
-from app.parsing.project_parser import (
+from app.parsing.resume.project_parser import (
     parse_projects_section,
     parse_technology_line,
 )

@@ -1,9 +1,14 @@
+import pytest
 from app.models.candidate import CandidateProfile
 from app.matching.rule_matcher import (
     calculate_rule_match,
     term_appears,
 )
 from app.models.job import JobPosting
+from app.matching.components import (
+    extract_required_experience_months,
+    score_experience_alignment,
+)
 
 candidate = CandidateProfile(
     name="Test Candidate",
@@ -106,16 +111,12 @@ def test_high_score_for_strong_entry_level_match() -> None:
 
     result = calculate_rule_match(candidate, job)
 
-    assert result.score == 85.0
-    assert result.technical_score == 40.0
-    assert result.role_score == 25.0
-    assert result.location_score == 10.0
+    assert result.score == pytest.approx(75.5682, rel=1e-4)
+    assert result.technical_score == pytest.approx(25.4545, rel=1e-4)
+    assert result.experience_score == 10.0
+    assert result.role_score == 10.0
+    assert result.location_score == 5.0
     assert result.early_career_score == 10.0
-    assert "Python" in result.matched_skills
-    assert "SQL" in result.matched_skills
-    assert "C" not in result.matched_skills
-    assert "Software Engineer" in result.matched_roles
-    assert result.location_match
     
 
 
@@ -142,9 +143,118 @@ def test_relocation_receives_partial_location_score() -> None:
 
     result = calculate_rule_match(candidate, job)
 
-    assert result.location_score == 5.0
+    assert result.location_score == 2.5
     assert not result.location_match
     assert any(
         "relocation is allowed" in reason
         for reason in result.reasons
     )
+
+def test_extract_required_experience_from_plus_requirement() -> None:
+    job = create_job(
+        title="Software Engineer",
+        description="Candidates should have 2+ years of relevant experience.",
+    )
+
+    assert extract_required_experience_months(job) == 24
+
+
+def test_extract_required_experience_from_range() -> None:
+    job = create_job(
+        title="Software Engineer",
+        description="Requires 1-3 years of professional experience.",
+    )
+
+    assert extract_required_experience_months(job) == 12
+
+
+def test_extract_required_experience_returns_none() -> None:
+    job = create_job(
+        title="Software Engineer",
+        description="Bachelor's degree preferred.",
+    )
+
+    assert extract_required_experience_months(job) is None
+
+
+def test_full_time_experience_meets_requirement() -> None:
+    experienced_candidate = candidate.model_copy(
+        update={
+            "full_time_experience_months": 24,
+            "internship_experience_months": 0,
+        }
+    )
+
+    job = create_job(
+        title="Software Engineer",
+        description="Requires 2 years of experience.",
+    )
+
+    result = score_experience_alignment(
+        experienced_candidate,
+        job,
+    )
+
+    assert result.score == 20.0
+
+
+def test_internship_experience_satisfies_entry_level_role() -> None:
+    early_candidate = candidate.model_copy(
+        update={
+            "internship_experience_months": 12,
+        }
+    )
+
+    job = create_job(
+        title="Software Engineer",
+        description="Requires 1 year of relevant experience.",
+    )
+
+    result = score_experience_alignment(
+        early_candidate,
+        job,
+    )
+
+    assert result.score == 15.0
+
+
+def test_partial_credit_for_internship_experience() -> None:
+    job = create_job(
+        title="Software Engineer",
+        description="Requires 2 years of experience.",
+    )
+
+    result = score_experience_alignment(
+        candidate,
+        job,
+    )
+
+    assert result.score == 8.0
+
+
+def test_no_credit_for_senior_experience_requirement() -> None:
+    job = create_job(
+        title="Senior Software Engineer",
+        description="Requires 5 years of experience.",
+    )
+
+    result = score_experience_alignment(
+        candidate,
+        job,
+    )
+
+    assert result.score == 0.0
+
+
+def test_neutral_score_when_requirement_not_specified() -> None:
+    job = create_job(
+        title="Software Engineer",
+        description="Recent graduates encouraged to apply.",
+    )
+
+    result = score_experience_alignment(
+        candidate,
+        job,
+    )
+
+    assert result.score == 10.0

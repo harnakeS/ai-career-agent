@@ -1,7 +1,7 @@
 import re
 
 from app.models.candidate import CandidateProfile
-from app.parsing.experience_parser import EmploymentType
+from app.parsing.resume.experience_parser import EmploymentType
 from app.parsing.resume_parser import ParsedResume
 
 

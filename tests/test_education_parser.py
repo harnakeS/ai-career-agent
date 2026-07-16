@@ -1,6 +1,6 @@
 import pytest
 
-from app.parsing.education_parser import parse_education_section
+from app.parsing.resume.education_parser import parse_education_section
 
 
 def test_parse_education_section_extracts_expected_fields() -> None:

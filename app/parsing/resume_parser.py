@@ -2,18 +2,18 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from app.parsing.pdf_parser import clean_resume_text, extract_pdf_text
-from app.parsing.section_parser import ResumeSections, split_resume_sections
-from app.parsing.skills_parser import ParsedSkills, parse_skills_section
-from app.parsing.education_parser import (
+from app.parsing.resume.section_parser import ResumeSections, split_resume_sections
+from app.parsing.resume.skills_parser import ParsedSkills, parse_skills_section
+from app.parsing.resume.education_parser import (
     ParsedEducation,
     parse_education_section
 )
-from app.parsing.experience_parser import (
+from app.parsing.resume.experience_parser import (
     EmploymentType,
     ParsedExperience,
     parse_experience_section,
 )
-from app.parsing.project_parser import (
+from app.parsing.resume.project_parser import (
     ParsedProject,
     parse_projects_section,
 )

@@ -4,10 +4,17 @@ from dataclasses import dataclass
 from app.models.candidate import CandidateProfile
 from app.models.job import JobPosting
 from app.matching.components import (
+    CategoryScore,
     score_early_career,
+    score_experience_alignment,
     score_location,
     score_role_alignment,
     score_technical_skills,
+)
+from app.matching.scoring import (
+    WeightedCategory,
+    aggregate_scores,
+    normalize_category_score,
 )
 
 
@@ -21,6 +28,7 @@ class MatchResult:
     role_score: float
     location_score: float
     early_career_score: float
+    experience_score: float
 
     matched_skills: list[str]
     matched_roles: list[str]
@@ -88,8 +96,18 @@ def calculate_rule_match(
     )
 
     technical_result = score_technical_skills(matched_skills)
+
+    experience_result = score_experience_alignment(
+        candidate,
+        job,
+    )
+
     role_result = score_role_alignment(matched_roles)
-    location_result = score_location(candidate, location_match)
+
+    location_result = score_location(
+        candidate,
+        location_match,
+    )
 
     early_career_terms = [
         "entry level",
@@ -112,29 +130,90 @@ def calculate_rule_match(
         early_career_match,
     )
 
-    total_score = min(
-        technical_result.score
-        + role_result.score
-        + location_result.score
-        + early_career_result.score,
-        100,
+    normalized_technical = CategoryScore(
+        score=normalize_category_score(
+            technical_result,
+            original_max=55.0,
+            target_max=35.0,
+        ),
+        reasons=technical_result.reasons,
     )
 
-    reasons = (
-        technical_result.reasons
-        + role_result.reasons
-        + location_result.reasons
-        + early_career_result.reasons
+    normalized_experience = CategoryScore(
+        score=normalize_category_score(
+            experience_result,
+            original_max=20.0,
+            target_max=20.0,
+        ),
+        reasons=experience_result.reasons,
+    )
+
+    normalized_role = CategoryScore(
+        score=normalize_category_score(
+            role_result,
+            original_max=25.0,
+            target_max=10.0,
+        ),
+        reasons=role_result.reasons,
+    )
+
+    normalized_location = CategoryScore(
+        score=normalize_category_score(
+            location_result,
+            original_max=10.0,
+            target_max=5.0,
+        ),
+        reasons=location_result.reasons,
+    )
+
+    normalized_early_career = CategoryScore(
+        score=normalize_category_score(
+            early_career_result,
+            original_max=10.0,
+            target_max=10.0,
+        ),
+        reasons=early_career_result.reasons,
+    )
+
+    aggregated = aggregate_scores(
+        [
+            WeightedCategory(
+                name="technical",
+                result=normalized_technical,
+                max_points=35.0,
+            ),
+            WeightedCategory(
+                name="experience",
+                result=normalized_experience,
+                max_points=20.0,
+            ),
+            WeightedCategory(
+                name="role",
+                result=normalized_role,
+                max_points=10.0,
+            ),
+            WeightedCategory(
+                name="location",
+                result=normalized_location,
+                max_points=5.0,
+            ),
+            WeightedCategory(
+                name="early_career",
+                result=normalized_early_career,
+                max_points=10.0,
+            ),
+        ]
     )
 
     return MatchResult(
-        score=float(total_score),
-        technical_score=technical_result.score,
-        role_score=role_result.score,
-        location_score=location_result.score,
-        early_career_score=early_career_result.score,
+        score=aggregated.score,
+        technical_score=normalized_technical.score,
+        experience_score=normalized_experience.score,
+        role_score=normalized_role.score,
+        location_score=normalized_location.score,
+        early_career_score=normalized_early_career.score,
         matched_skills=matched_skills,
         matched_roles=matched_roles,
         location_match=location_match,
-        reasons=reasons,
+        reasons=aggregated.reasons,
     )

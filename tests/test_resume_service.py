@@ -1,5 +1,5 @@
 from pathlib import Path
-from app.parsing.experience_parser import EmploymentType
+from app.parsing.resume.experience_parser import EmploymentType
 from app.parsing.resume_parser import parse_resume
 
 

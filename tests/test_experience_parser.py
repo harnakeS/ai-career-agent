@@ -1,6 +1,6 @@
 import pytest
 
-from app.parsing.experience_parser import (
+from app.parsing.resume.experience_parser import (
     EmploymentType,
     ParsedDateRange,
     calculate_duration_months,
