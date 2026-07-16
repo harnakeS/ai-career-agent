@@ -1,0 +1,36 @@
+Title
+Entry Level Back End Developer
+
+Responsibilities
+
+• Develop backend applications and services.
+• Design and implement REST APIs.
+• Build scalable server-side applications.
+• Work with databases and client-server architectures.
+• Collaborate with engineering teams using Agile methodologies.
+• Support cloud-based application development.
+
+Minimum Qualifications
+
+• Bachelor's degree in Computer Science or related field.
+• Basic knowledge of software development concepts.
+• Experience with one or more of the following:
+  - Java
+  - Python
+  - C
+  - C++
+  - SQL
+• Familiarity with REST APIs.
+• Knowledge of Git and DevOps tools.
+• Understanding of Linux or other operating systems.
+• Understanding of databases.
+• Ability to learn new technologies quickly.
+• Strong written and verbal communication skills.
+
+Preferred Qualifications
+
+• One year of software development experience.
+• Experience building APIs.
+• Experience with cloud platforms.
+• Familiarity with virtualization technologies.
+• Experience with JSON and Web Services.

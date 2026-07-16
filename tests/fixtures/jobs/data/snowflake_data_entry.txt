@@ -1,0 +1,30 @@
+Role Summary : 
+
+We are seeking a passionate and detail-oriented Data Engineer to join our Digital Tech & Data team. In this role, you will be responsible for building and maintaining the data pipelines that support our digital ecosystem — from ingesting raw data across multiple digital touchpoints to delivering clean, robust data that business teams can trust and act on.
+
+Responsibilities :
+
+Design, build, and maintain production-grade data pipelines in Airflow that ingest data from digital touchpoints into Snowflake. 
+Develop modular, tested, and well-documented DBT models that transform raw data into reliable, business-ready datasets — owning the full lifecycle from source definition to exposure. 
+Provision and manage cloud data infrastructure (Snowflake objects, Airflow environments, supporting GCP resources) through Terraform, with everything version-controlled and peer-reviewed. 
+Implement and uphold data quality, observability, and testing standards across pipelines
+
+Required Qualifications :
+
+Bachelor's degree in Computer Science, Information Systems, Engineering, Mathematics, or a related quantitative discipline. 
+2+ years of hands-on experience in a data engineering or analytics engineering role, ideally within a digital or e-commerce environment. 
+Proven experience building and maintaining production-grade data pipelines using Apache Airflow. 
+
+Preferred Qualifications:
+
+Strong working knowledge of Snowflake, including data modelling, performance tuning, clustering, and warehouse cost management. 
+Demonstrated experience developing DBT projects — writing modular, tested, and well-documented transformation logic. 
+Practical experience using Terraform to provision and manage cloud data infrastructure in a repeatable, version-controlled manner. 
+Proficiency in Python for writing data pipelines, custom operators, and utility tooling. 
+Strong SQL skills with the ability to write and optimise complex queries across large datasets. 
+Comfortable working with Git in a team environment, including branching strategies, pull requests, and code reviews. 
+Experience working with Google Cloud Platform (GCP) services such as Cloud Storage, GKE
+
+Compensation And Benefits
+
+Salary Range $96,800.00 - $137,000.00 USD

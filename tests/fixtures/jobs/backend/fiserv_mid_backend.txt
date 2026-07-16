@@ -1,0 +1,44 @@
+Job Title
+
+Java Backend Engineer
+
+About Your Role
+
+As a Java Backend Engineer you will code daily, own technical delivery end to end, and raise the bar for the team through strong code reviews, pragmatic architecture, and operational ownership. You’ll work closely with an offshore team, keep environments stable and clean, and ensure what we release is production ready.
+
+You will design, develop, and maintain backend services using Java 25, Spring Boot, REST APIs as well as own delivery from design through production: implementation, unit/integration testing, deployment readiness, and production support. You will lead day-to-day execution with an offshore lead and team: align on priorities, break down work, manage dependencies, and coordinate with QA and release timelines.
+
+What You'll Do
+
+ Design, build, and enhance scalable, secure, and high performance payment processing applications using the Java technology stack (Java, Spring Boot, REST, SQL/NoSQL).
+ Review code from other engineers, enforce consistent standards (naming, structure, testing, and secure coding practices), and help unblock issues quickly
+ Define and implement infrastructure-as-code to create and update cloud resources; deploy changes safely and maintain cloud environments through monitoring, troubleshooting, configuration hygiene, and access controls.
+ Ensure environments remain “pristine”: predictable deployments, minimal drift, clear ownership, and strong operational readiness (alerting, dashboards, and runbooks where needed).
+ Develop and support batch and data-processing workloads (ingestion/processing flows, scheduling, transformations), using strong patterns for retries, idempotency, checkpointing, and error handling.
+ Build and enhance application features that integrate with **Snowflake** and **Oracle**, including writing and tuning SQL where needed.
+ Design with maintainability in mind: clear boundaries, sensible abstractions, and an approach that makes future changes safer and easier.
+ Build for resiliency by validating failure scenarios and incorporating disaster recovery considerations into designs and releases.
+
+Experience You'll Need To Have
+
+ 6+ years of backend development experience with Java and Spring Boot, including building production APIs and integrations.
+ 6+ years of experience in leading delivery (coding, reviewing, and driving technical decisions).
+ 6+ years of experience writing **infrastructure-as-code** and owning cloud deployments and operations (monitoring, troubleshooting, and environment stability).
+ 6+ years of experience with containerized development and modern build/release pipelines (Docker, build tools, CI/CD).
+ 3+ year of experience integrating with Snowflake and Oracle in real systems (development, troubleshooting, and performance awareness).
+ Bachelor's degree in computer science, Information Technology, Information Systems, or a related field (or foreign equivalent degree) or equivalent work experience.
+
+Experience That Would Be Great To Have
+
+ Experience working in hybrid environments (cloud plus on-prem or platform-managed runtimes).
+ Experience designing resilient systems and validating recovery procedures through testing.
+
+Important Information About This Role
+
+This role is on-site Monday through Friday. Fiserv considers in-person collaboration to be an essential part of this role as in-person office experiences help you with your overall onboarding experience and leads to stronger productivity.
+This is a full-time, direct-hire position, and no contract options for unsolicited agency submissions will be considered.
+All offers of employment are contingent on standard background checks. Fiserv and certain of its affiliated companies are federal, state, and/or local government contractors. Should this position support a Federal Government contract, now or in the future, the successful candidate will be subject to a background check conducted by the U.S. Government to determine eligibility and suitability for federal contract employment for public trust or sensitive positions. Positions that support state and/or local contracts also may require additional background checks to determine eligibility and suitability.
+
+Salary Range
+
+$110,000.00 - $186,000.00

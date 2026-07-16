@@ -602,3 +602,32 @@ Potential Azure services include:
 - Application Insights for logging and monitoring
 
 The local SQLite implementation will remain available for development and testing.
+
+---
+
+## Job Requirements Extraction
+
+Job descriptions are converted into structured requirements before matching.
+
+JobPosting
+    ↓
+LLM Requirement Extractor
+    ↓
+ExtractedJobRequirements
+    ↓
+Validation and Normalization
+    ↓
+JobRequirements
+    ↓
+Requirement Evidence Matcher
+
+- [x] Define structured requirement models
+- [x] Add requirement importance classification
+- [x] Add real job-description fixtures
+- [x] Define validated LLM extraction schema
+- [ ] Create provider-independent LLM extractor interface
+- [ ] Implement first LLM provider adapter
+- [ ] Convert extracted output into `JobRequirements`
+- [ ] Add deduplication and normalization
+- [ ] Match requirements against candidate evidence
+- [ ] Integrate requirement-based scoring into the pipeline

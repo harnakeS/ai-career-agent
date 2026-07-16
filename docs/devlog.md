@@ -195,3 +195,18 @@ Established the core backend architecture for the AI Career Agent.
 - Add education, certification, and work-authorization scoring.
 - Improve category weighting and recommendation explanations.
 - Persist richer score breakdowns.
+
+---
+
+## Job Requirements Engine Foundation
+
+- Added structured `Requirement` and `JobRequirements` models.
+- Added requirement categories for skills, education, experience, certifications, location, language, clearance, and authorization.
+- Added required, preferred, and optional importance levels.
+- Added filtering helpers for retrieving requirements by category and importance.
+- Reorganized requirement parsing into `app/parsing/requirements/`.
+- Added deterministic requirement-importance classification.
+- Added real job-description fixtures across backend, AI, cloud, data, and IT roles.
+- Added validated schemas for future LLM-based requirement extraction.
+- Chose an LLM-driven skill extraction approach instead of maintaining a fixed skill vocabulary.
+- Test suite increased to 94 passing tests.

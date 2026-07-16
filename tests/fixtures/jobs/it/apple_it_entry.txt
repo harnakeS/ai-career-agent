@@ -1,0 +1,32 @@
+Responsibilities:
+
+Create and maintain necessary knowledge objects which will be used by all Customer Success teams.
+Provide users with support on technical, operational, and user/account-related issues, on the phone, via e-mail/ticketing system.
+Identify, research and resolve all client reported issues, questions and concerns in a timely manner.
+Coordinate support resources for all problems and issues not resolved during the initial contact with the client.
+Monitor and ensure 100% accuracy of all escalations and work requests throughout the day and consistently resolve, de-escalate, or further escalate within the required client Service Level Agreements.
+Coordinate issue resolution efforts with other departments to ensure timely and efficient resolutions are met and customer satisfaction is upheld.
+Maintain proper tracking of problem resolution and conduct trend analysis for reference and management reporting.
+Distinguish between application, operating system, network, and hardware problems, with an understanding of IT systems design, analysis, and integrations.
+Ability to present complex technical information to non-technical audiences.
+Reproduce technical problems, diagnose causes, identify temporary and long-term solutions and communicate status updates to clients.
+Inform and instruct users on new products, features and best practices.
+Manage and assist in the development and revisions of Training Presentations, Exercises, Quick Reference Guides and Other Support Materials.
+Strong Customer Service skills, both telephone and email, with excellent oral and written communications.
+Previous Helpdesk or Desk Side Support Experience is a big plus.
+Previous experience with platform products and integrations is a big plus.
+Ability to work with minimal supervision.
+Ability to adhere to deadlines and protocols.
+
+Qualifications:
+
+Experience with MS Outlook, MS Windows, MS Office Suite (or equivalent) , Microsoft SQL Server, Zendesk/ServiceNow or other Issue Tracking software preferred.
+Ability to deliver with high quality of work keeping in frame support metrics like Customer Satisfaction, Turnaround Times, timely follow ups etc.
+Ability to understand and write SQL scripts to extract and update data from databases.
+Must have the ability to learn new products as needed.
+Be able to prioritize work as business demands.
+A minimum of 2 years of related experience with a Bachelor's degree; or an advanced degree without experience.
+
+The salary range posted below refers only to positions that will be physically based in New York, NY. As with all roles, Medidata sets ranges based on a number of factors including function, level, candidate expertise and experience, and geographic location. Pay ranges for candidates in locations other than New York, NY may differ based on the local market data in that region.
+
+The base salary pay range for this position is $66,000.00 to $88,000.00

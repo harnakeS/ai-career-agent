@@ -1,0 +1,93 @@
+Job Description
+
+The Cloud Automation Engineer is responsible for designing, developing, and maintaining the automation platforms, infrastructure-as-code frameworks, and cloud operational tooling that enable VERSANT’s cloud-first technology strategy.
+
+This role focuses on building scalable, repeatable, and secure automation solutions across a large multi-account AWS environment. The engineer will partner with cloud engineering, application development, networking, security, and operations teams to automate cloud provisioning, governance, identity management, deployments, monitoring, and operational workflows.
+
+As a leading media company, VERSANT operates a diverse portfolio of digital products, content platforms, streaming services, and media workflows. The Cloud Automation Engineer will develop automation solutions that support media processing, content delivery, streaming platforms, and customer-facing digital applications running in AWS.
+
+The ideal candidate has strong experience with AWS, infrastructure as code, CI/CD platforms, cloud governance, and automation engineering. Experience with AWS Organizations, Control Tower, Identity Center, Terraform, GitHub Actions, and cloud-native operational tooling is highly desired. Experience from Azure and GCP is beneficial but not required.
+
+Responsibilities
+
+Cloud Automation & Infrastructure as Code
+
+Design, develop, and maintain infrastructure-as-code solutions using Terraform, CloudFormation, and related automation frameworks. 
+Build reusable modules, templates, and automation patterns that enable consistent deployment of cloud infrastructure. 
+Automate provisioning, configuration, lifecycle management, and decommissioning of cloud resources. 
+Ensure cloud infrastructure is version-controlled, auditable, and deployed through automated workflows. 
+Develop automation solutions supporting media, streaming, content management, content delivery, and digital platform workloads operating in AWS. 
+Create reusable infrastructure patterns that enable application and media engineering teams to deploy services consistently and securely. 
+
+AWS Platform Automation
+
+Automate administration and governance of large AWS environments utilizing AWS Organizations, Control Tower, and Identity Center. 
+Develop automation for account provisioning, guardrail enforcement, resource tagging, policy management, and compliance controls. 
+Build self-service cloud capabilities that accelerate application team onboarding and deployment. 
+Support automation of identity, access management, and account lifecycle processes across AWS environments. 
+
+CI/CD & Delivery Automation
+
+Design and support CI/CD pipelines for infrastructure and application deployments, including media services, content platforms, APIs, and customer-facing digital applications. 
+Implement automation for build, test, security scanning, release management, and deployment workflows. 
+Implement automated testing, deployment, and operational validation processes that improve reliability and delivery speed across media and digital workloads. 
+Partner with engineering teams to improve deployment reliability, consistency, and velocity. 
+Support GitOps and modern deployment methodologies. 
+
+Identity & Security Automation
+
+Develop automation supporting AWS IAM, Identity Center (SSO), federation, and role-based access controls. 
+Implement automated policy validation, security controls, compliance monitoring, and remediation workflows. 
+Partner with cybersecurity teams to embed security requirements into automated deployment pipelines. 
+Support cloud governance initiatives through automation and policy enforcement. 
+
+Monitoring & Operational Excellence
+
+Develop automation for monitoring, alerting, logging, and operational reporting. 
+Create tooling that improves system reliability, operational visibility, and incident response. 
+Eliminate repetitive manual tasks through automation and workflow orchestration. 
+Contribute to observability and operational maturity across cloud environments. 
+
+Hybrid Infrastructure Automation
+
+Support automation across AWS and hybrid environments that integrate with on-premises infrastructure and enterprise services. 
+Build automation workflows that simplify provisioning, configuration, and operational management. 
+Assist with integrations between cloud platforms, networking services, identity systems, and operational tooling. 
+Support infrastructure modernization efforts through automation and repeatable deployment patterns. 
+
+Collaboration & Continuous Improvement
+
+Partner with cloud, networking, security, and application teams to identify automation opportunities. 
+Contribute to cloud engineering standards, documentation, and best practices. 
+Evaluate emerging automation technologies and recommend improvements to engineering processes and platforms. 
+Participate in architecture reviews and operational improvement initiatives. 
+
+Qualifications
+
+Qualifications
+
+Bachelor’s degree in Computer Science, Engineering, Information Systems, or equivalent practical experience. 
+3–7 years of experience in cloud engineering, automation engineering, DevOps, platform engineering, or infrastructure engineering roles. 
+Strong hands-on experience with AWS cloud services and enterprise-scale AWS environments. 
+Experience with: 
+AWS Organizations 
+AWS Control Tower 
+AWS Identity Center (SSO) 
+IAM and identity federation 
+Experience developing Infrastructure as Code solutions using: 
+Terraform 
+CloudFormation 
+Experience designing and maintaining CI/CD pipelines using tools such as: 
+GitHub Actions 
+GitLab CI 
+Azure DevOps 
+Jenkins 
+Proficiency in scripting and automation using Python, PowerShell, Bash, or similar languages. 
+Experience implementing cloud governance, security controls, and operational automation. 
+Understanding of AWS networking concepts, including VPCs, routing, hybrid connectivity, and shared services. 
+Hands on experience working with Datadog. 
+Experience to Azure and/or GCP is a plus.
+
+Additional Information
+
+Location: New York City, NY or Englewood Cliffs, NJ - (Hybrid – 3 days onsite)

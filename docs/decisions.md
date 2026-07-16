@@ -362,3 +362,25 @@ Keeping these values separate:
 ### Alternatives Considered
 
 Hardcoding preferences in `main.py` worked temporarily but mixed application configuration with orchestration logic.
+
+---
+
+## Use LLM-Based Requirement Extraction
+
+### Decision
+
+Use a language model to extract skills and other requirements dynamically from job descriptions instead of relying on a fixed, manually maintained skill vocabulary.
+
+### Rationale
+
+A fixed vocabulary would require continuous updates and could fail to recognize new, niche, or uncommon technologies. An LLM can interpret arbitrary job descriptions and return structured requirements without limiting extraction to a predefined list.
+
+The LLM will only extract and classify requirements. Deterministic application code will continue to handle validation, deduplication, evidence matching, weighting, and final score calculation.
+
+### Consequences
+
+- The extractor can support technologies not previously known to the application.
+- LLM outputs must be validated through Pydantic schemas.
+- Extraction should remain provider-independent.
+- Tests should rely on mocked structured outputs rather than live API calls.
+- A lightweight normalization layer may still be added later for aliases and duplicates.

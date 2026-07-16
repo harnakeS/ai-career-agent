@@ -1,0 +1,90 @@
+About the job
+The Applications Development Senior Manager is a senior management level position responsible for accomplishing results through the management of a team or department in an effort to establish and implement new or revised application systems and programs in coordination with the Technology team.
+
+The overall objective of this role is to drive applications systems analysis and programming activities, build ML-powered tools and data products that solve complex data quality issues and automate business processes across Citi's global operations as part of our Data & AI Engineering team. This is a hands-on engineering role — you will own solutions end-to-end, from problem definition through production deployment.
+
+Responsibilities:
+
+Design and build machine learning models and pipelines to detect, classify, and resolve data quality issues at scale
+Handles prompt engineering. 
+Sets up RAG (Retrieval-Augmented Generation) pipeline. 
+Focuses on training, fine-tuning, and optimizing AI models. 
+Requires deeper knowledge of algorithms and mathematics
+Develop automation tools that eliminate manual effort in data reconciliation, anomaly detection, and reporting workflows
+Build and maintain internal data products and APIs that expose ML capabilities to business users and downstream systems
+Collaborate with data scientists, engineers, and business stakeholders to translate requirements into production-ready solutions
+Collaborate with MLOps to Implement best practices including CI/CD for ML, model versioning, experiment tracking, and performance monitoring
+Identify and apply ML and automation techniques to reduce operational risk and improve data governance
+Continuously monitor and improve deployed models based on real-world feedback and performance metrics
+Manage one or more Applications Development projects in an effort to accomplish established goals
+Utilize in-depth knowledge and skills across multiple Applications Development areas to provide technical oversight across systems and applications
+Review and analyze proposed technical solutions for projects
+Contribute to formulation of strategies for applications development and other functional areas
+Develop comprehensive knowledge of how areas of business integrate to accomplish business goals
+Provide evaluative judgment based on analysis of factual data in complicated and unique situations
+Impact the Applications Development area through monitoring delivery of end results, participate in budget management, and handling day-to-day staff management issues, including resource management and allocation of work within the team/project
+Ensure essential procedures are followed and contribute to defining standards negotiating with external parties when necessary
+Appropriately assess risk when business decisions are made, demonstrating particular consideration for the firm's reputation and safeguarding Citigroup, its clients and assets, by driving compliance with applicable laws, rules and regulations, adhering to Policy, applying sound ethical judgment regarding personal behavior, conduct and business practices, and escalating, managing and reporting control issues with transparency, as well as effectively supervise the activity of others and create accountability with those who fail to maintain these standards.
+
+Recommended Qualifications:
+
+6-10 years of relevant experience in the Financial Service industry
+Experience as Applications Development Manager
+Experience as senior level in an Applications Development role
+Stakeholder and people management experience
+Demonstrated leadership skills
+Proven project management skills
+Basic knowledge of industry practices and standards
+Consistently demonstrates clear and concise written and verbal communication
+
+Technical Skills:
+
+Languages: Python, Java
+ML Frameworks: Agent Development Kit, scikit-learn, PyTorch, TensorFlow, VertexAi
+Data & Processing: SQL, Spark, Databricks, Snowflake, or equivalent large-scale data platforms
+Engineering: REST API development, Git, unit testing, code review
+
+Preferred Qualifications:
+
+Experience in financial services or a regulated industry
+Familiarity with NLP, document processing, or entity extraction
+Exposure to LLMs and generative AI for automation or data enrichment use cases
+Knowledge of data quality frameworks, master data management (MDM), or data lineage tools
+Experience building internal tools or platforms used by non-technical teams
+
+Education:
+
+Bachelor’s degree/University degree or equivalent experience
+Master’s degree preferred
+
+This job description provides a high-level review of the types of work performed. Other job-related duties may be assigned as required.
+
+------------------------------------------------------
+
+Job Family Group: 
+
+Technology
+
+------------------------------------------------------
+
+Job Family:
+
+Applications Development
+
+------------------------------------------------------
+
+Time Type:
+
+Full time
+
+------------------------------------------------------
+
+Primary Location:
+
+New York New York United States
+
+------------------------------------------------------
+
+Primary Location Full Time Salary Range:
+
+$142,320.00 - $213,480.00

@@ -12,7 +12,8 @@ The personal-use backend can currently:
 - Generate a candidate profile directly from the resume
 - Load personal job-search preferences from JSON
 - Score jobs using a deterministic matching engine
+- Structured, LLM-ready job requirement extraction with validated output and explainable deterministic scoring
 
-The automated test suite currently contains 55 passing tests.
+The automated test suite currently contains 94 passing tests.
 
 The next development phase focuses on richer experience, education, certification, and work-authorization scoring before adding more company collectors.
