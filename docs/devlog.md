@@ -124,3 +124,33 @@ Established the core backend architecture for the AI Career Agent.
 - Parse education into structured fields.
 - Parse work experience and projects.
 - Generate a `CandidateProfile` directly from the uploaded resume.
+
+---
+
+## 2026-07-16 — Resume-Generated Candidate Profiles
+
+### Implemented
+
+- Expanded `CandidateProfile` to track experience by employment type.
+- Replaced the single years-of-experience field with month-based full-time, internship, co-op, part-time, and contract totals.
+- Built a candidate-profile builder using structured resume data.
+- Added candidate-name extraction.
+- Added experience aggregation by employment category.
+- Added deterministic target-role inference from skills, certifications, and projects.
+- Updated the live job pipeline to use the resume-generated candidate profile.
+- Removed the pipeline's dependency on the hardcoded candidate configuration.
+- Increased the automated test suite to 51 passing tests.
+
+### Lessons Learned
+
+- Internship experience should not be represented as full-time professional experience.
+- Resume-derived facts and user preferences should remain separate.
+- Passing the candidate profile into the pipeline makes the matching engine easier to test and adapt.
+- Structured resume parsing becomes valuable when downstream systems directly consume the resulting data.
+
+### Next
+
+- Move personal preferences out of `main.py` into configuration.
+- Add experience, education, certification, and work-authorization scoring.
+- Persist richer matching explanations and category scores.
+- Begin support for multiple job collectors.

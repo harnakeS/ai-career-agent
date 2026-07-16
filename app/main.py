@@ -1,18 +1,35 @@
+from app.collectors.remotive import RemotiveCollector
+from app.database.database import create_database
+from app.parsing.candidate_builder import build_candidate_profile
 from app.parsing.resume_parser import parse_resume
+from app.pipeline.job_pipeline import JobPipeline
 
 
 def main() -> None:
+    create_database()
+
     resume = parse_resume("data/resume.pdf")
 
-    print("Projects parsed successfully.")
-    print("-----------------------------")
+    candidate = build_candidate_profile(
+        resume,
+        preferred_locations=[
+            "New Jersey",
+            "New York",
+            "Philadelphia",
+            "Remote",
+        ],
+        willing_to_relocate=True,
+        us_citizen=True,
+    )
 
-    for project in resume.projects:
-        print(f"Name: {project.name}")
-        print(f"Duration: {project.duration_months} months")
-        print(f"Technologies: {project.technologies}")
-        print(f"Bullets: {len(project.bullets)}")
-        print()
+    collector = RemotiveCollector()
+
+    pipeline = JobPipeline(
+        collector=collector,
+        candidate=candidate,
+    )
+
+    pipeline.run()
 
 
 if __name__ == "__main__":

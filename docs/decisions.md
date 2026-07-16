@@ -233,3 +233,53 @@ The current resume format contains consistent headings and structured skill cate
 ### Alternatives Considered
 
 Using an LLM for the entire extraction process would support more resume formats, but it would introduce additional cost, latency, nondeterminism, and validation requirements before the core workflow is proven.
+
+---
+
+## ADR-015: Generate the Candidate Profile from Parsed Resume Data
+
+**Status:** Accepted
+
+### Decision
+
+Build the active `CandidateProfile` from the structured `ParsedResume` rather than maintaining candidate skills, education, and experience in Python configuration.
+
+### Reason
+
+Using the resume as the source of truth:
+
+- Eliminates duplicated candidate data
+- Prevents profile information from becoming inconsistent with the resume
+- Allows updated resumes to affect job matching without source-code changes
+- Creates the foundation for resume uploads and multiple resume versions
+- Makes the matching workflow more representative of the intended product
+
+User preferences that cannot be safely inferred, such as preferred locations, relocation willingness, and work authorization, remain explicitly configured.
+
+### Alternatives Considered
+
+Keeping a fully hardcoded candidate profile was simpler during early matching development, but it required manual maintenance and prevented the uploaded resume from driving recommendations.
+
+---
+
+## ADR-016: Track Experience by Employment Type and Duration
+
+**Status:** Accepted
+
+### Decision
+
+Represent experience as separate month totals for full-time, internship, co-op, part-time, and contract work.
+
+### Reason
+
+A single `years_experience` value would overstate candidates whose experience consists primarily of internships or short-term roles.
+
+Separating experience categories allows the matching engine to distinguish between:
+
+- Full-time professional experience
+- Internship experience
+- Co-op experience
+- Part-time experience
+- Contract experience
+
+This produces more accurate eligibility and seniority judgments.

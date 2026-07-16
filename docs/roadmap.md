@@ -72,11 +72,10 @@ Determine how well a job matches my background before introducing AI.
 - [x] Experience parsing
 - [x] Project parsing
 - [x] Employment classification
+- [x] CandidateProfile Builder
+- [x] Resume → Matching integration
 
 ### Remaining
-
-- [ ] CandidateProfile Builder
-- [ ] Resume → Matching integration
 - [ ] Resume version management
 - [ ] Multiple resume layouts
 

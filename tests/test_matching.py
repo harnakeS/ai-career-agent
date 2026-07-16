@@ -1,9 +1,68 @@
-from app.config.candidate import candidate
+from app.models.candidate import CandidateProfile
 from app.matching.rule_matcher import (
     calculate_rule_match,
     term_appears,
 )
 from app.models.job import JobPosting
+
+candidate = CandidateProfile(
+    name="Test Candidate",
+    graduation_year=2026,
+    education="Bachelor of Arts",
+    majors=["Computer Science"],
+    minors=["Economics"],
+    programming_languages=[
+        "Java",
+        "Python",
+        "C",
+        "SQL",
+    ],
+    frameworks=[
+        "Pandas",
+        "BeautifulSoup",
+        "Playwright",
+        "Scikit-learn",
+        "NumPy",
+    ],
+    tools=[
+        "Git",
+        "Linux",
+        "Azure",
+        "Jupyter Notebook",
+    ],
+    skills=[
+        "Object-Oriented Programming",
+        "Data Structures & Algorithms",
+        "Machine Learning",
+    ],
+    certifications=[
+        "Azure AI Engineer Associate",
+    ],
+    full_time_experience_months=0,
+    internship_experience_months=10,
+    co_op_experience_months=0,
+    part_time_experience_months=0,
+    contract_experience_months=0,
+    preferred_locations=[
+        "New Jersey",
+        "New York",
+        "Philadelphia",
+        "Remote",
+    ],
+    willing_to_relocate=True,
+    us_citizen=True,
+    desired_roles=[
+        "Software Engineer",
+        "Backend Engineer",
+        "AI Engineer",
+        "Machine Learning Engineer",
+        "Data Engineer",
+        "Technology Analyst",
+        "IT Analyst",
+        "Application Developer",
+        "Application Support Engineer",
+    ],
+)
 
 
 def create_job(

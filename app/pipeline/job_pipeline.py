@@ -1,5 +1,5 @@
 from app.collectors.base import JobCollector
-from app.config.candidate import candidate
+from app.models.candidate import CandidateProfile
 from app.database.database import SessionLocal
 from app.database.repository import JobRepository
 from app.matching.rule_matcher import calculate_rule_match
@@ -9,8 +9,13 @@ from app.processing.filters import is_potential_match
 class JobPipeline:
     """Coordinates job collection, filtering, scoring, and storage."""
 
-    def __init__(self, collector: JobCollector) -> None:
+    def __init__(
+        self,
+        collector: JobCollector,
+        candidate: CandidateProfile,
+    ) -> None:
         self.collector = collector
+        self.candidate = candidate
 
     def run(self) -> None:
         jobs = self.collector.collect_jobs()
@@ -30,7 +35,7 @@ class JobPipeline:
                     skipped_jobs += 1
                     continue
 
-                match_result = calculate_rule_match(candidate, job)
+                match_result = calculate_rule_match(self.candidate, job)
 
                 record, created = repository.save_or_update(job)
                 record.match_score = match_result.score

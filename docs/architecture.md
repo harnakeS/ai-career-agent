@@ -157,26 +157,31 @@ This prevents malformed or incomplete external data from reaching the database a
 
 ### CandidateProfile Model
 
-The `CandidateProfile` model stores the structured candidate information used for job matching.
+The active candidate profile is generated from the parsed resume at application startup.
 
-It currently includes:
+Resume-derived fields include:
 
-- Education
+- Candidate name
+- Degree
+- Major and minor
 - Graduation year
-- Years of experience
 - Programming languages
-- Technical skills
 - Frameworks and libraries
 - Tools
+- Concepts
 - Certifications
+- Full-time experience months
+- Internship experience months
+- Co-op experience months
+- Part-time experience months
+- Contract experience months
+- Inferred target roles
+
+Candidate preferences that cannot be reliably inferred from a resume are still supplied through configuration:
+
 - Preferred locations
-- Relocation preference
-- Work authorization
-- Desired job types
-
-The current profile is defined manually in configuration.
-
-A future version will generate candidate profiles automatically from uploaded resumes and support multiple resume variants.
+- Willingness to relocate
+- U.S. citizenship and work authorization
 
 ---
 
@@ -197,6 +202,36 @@ Section Parsing
 Skills Parsing
     ↓
 ParsedResume
+
+---
+
+### Candidate Profile Builder
+
+The candidate-profile builder transforms a `ParsedResume` into the normalized `CandidateProfile` consumed by the matching engine.
+
+It currently:
+
+- Extracts the candidate's name from the resume header
+- Maps structured education and skills into candidate fields
+- Separately aggregates internship, full-time, co-op, part-time, and contract experience
+- Infers reasonable target roles from skills, certifications, and project technologies
+- Combines resume-derived data with user-provided preferences
+
+Current runtime flow:
+
+Resume PDF
+    ↓
+ParsedResume
+    ↓
+CandidateProfile Builder
+    ↓
+CandidateProfile
+    ↓
+JobPipeline
+    ↓
+Rule Matcher
+
+---
 
 ### Job Processing Pipeline
 
@@ -431,6 +466,11 @@ Existing tests cover:
 - Section extraction
 - Skills-category extraction
 - End-to-end resume parsing orchestration
+- Candidate-name extraction
+- Experience aggregation by employment type
+- Target-role inference
+- Candidate-profile generation
+- Resume-generated profile integration with the job pipeline
 
 Tests are added before major features are integrated into the live pipeline.
 
@@ -452,7 +492,8 @@ Planned test coverage includes:
 The current version has several known limitations:
 
 - It only supports one live job source.
-- The candidate profile is hardcoded.
+- Location, relocation, and work-authorization preferences are still supplied in `main.py`.
+- Target-role inference currently uses deterministic keyword rules.
 - Job scoring relies on exact term matching.
 - Only jobs that pass eligibility filtering receive match scores.
 - Jobs that are skipped do not yet store an eligibility reason.
