@@ -60,7 +60,11 @@ Determine how well a job matches my background before introducing AI.
 
 ---
 
-## Milestone 3 — Resume Intelligence 🚧 In Progress
+# Milestone 3 — Resume Intelligence 🚧 In Progress
+
+## Goal
+
+Automatically transform a resume into structured candidate data that drives job matching.
 
 ### Completed
 
@@ -71,13 +75,19 @@ Determine how well a job matches my background before introducing AI.
 - [x] Education parsing
 - [x] Experience parsing
 - [x] Project parsing
-- [x] Employment classification
+- [x] Employment-type classification
 - [x] CandidateProfile Builder
-- [x] Resume → Matching integration
+- [x] Resume-to-matching integration
+- [x] Experience aggregation by employment type
+- [x] Deterministic target-role inference
+- [x] Candidate preferences loaded from JSON
 
 ### Remaining
+
 - [ ] Resume version management
 - [ ] Multiple resume layouts
+- [ ] User review of uncertain employment classifications
+- [ ] LLM-assisted fallback extraction
 
 ---
 

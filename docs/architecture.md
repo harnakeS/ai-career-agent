@@ -61,13 +61,22 @@ app/
 ├── models/
 │   ├── candidate.py
 │   └── job.py
+|
+├── parsing/
+│   ├── candidate_builder.py
+│   ├── education_parser.py
+│   ├── experience_parser.py
+│   ├── pdf_parser.py
+│   ├── project_parser.py
+│   ├── resume_parser.py
+│   ├── section_parser.py
+│   └── skills_parser.py
 │
 ├── pipeline/
 │   └── job_pipeline.py
 │
 ├── processing/
 │   └── filters.py
-|
 |
 ├── resume/
 │   ├── pdf_parser.py
@@ -155,9 +164,9 @@ This prevents malformed or incomplete external data from reaching the database a
 
 ---
 
-### CandidateProfile Model
+## Candidate Profile Generation
 
-The active candidate profile is generated from the parsed resume at application startup.
+The active `CandidateProfile` is generated from the parsed resume rather than maintained manually in Python code.
 
 Resume-derived fields include:
 
@@ -167,7 +176,7 @@ Resume-derived fields include:
 - Graduation year
 - Programming languages
 - Frameworks and libraries
-- Tools
+- Tools and technologies
 - Concepts
 - Certifications
 - Full-time experience months
@@ -175,13 +184,39 @@ Resume-derived fields include:
 - Co-op experience months
 - Part-time experience months
 - Contract experience months
-- Inferred target roles
+- Inferred desired roles
 
-Candidate preferences that cannot be reliably inferred from a resume are still supplied through configuration:
+User preferences that cannot be safely inferred from a resume are loaded from a separate JSON configuration file.
+
+These include:
 
 - Preferred locations
 - Willingness to relocate
 - U.S. citizenship and work authorization
+
+### Runtime Flow
+
+Resume PDF
+    ↓
+PDF Text Extraction
+    ↓
+Text Normalization
+    ↓
+Section Parsers
+    ↓
+ParsedResume
+    ↓
+CandidateProfile Builder
+    ↓
+Resume-Derived Candidate Data
+            +
+Candidate Preferences JSON
+    ↓
+CandidateProfile
+    ↓
+JobPipeline
+    ↓
+Matching Engine
 
 ---
 
@@ -448,6 +483,8 @@ This keeps the application entry point easy to understand and prevents it from b
 
 ## Testing
 
+Test Count: 55
+
 The project currently uses `pytest`.
 
 Existing tests cover:
@@ -470,6 +507,13 @@ Existing tests cover:
 - Experience aggregation by employment type
 - Target-role inference
 - Candidate-profile generation
+- Resume-generated profile integration with the job pipeline
+- Candidate-name extraction
+- Experience aggregation by employment type
+- Target-role inference
+- Candidate-profile generation
+- Candidate-preferences validation
+- Missing and malformed preference-file handling
 - Resume-generated profile integration with the job pipeline
 
 Tests are added before major features are integrated into the live pipeline.

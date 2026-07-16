@@ -283,3 +283,82 @@ Separating experience categories allows the matching engine to distinguish betwe
 - Contract experience
 
 This produces more accurate eligibility and seniority judgments.
+
+---
+
+## ADR-015: Generate Candidate Profiles from Parsed Resume Data
+
+**Status:** Accepted
+
+### Decision
+
+Generate the active `CandidateProfile` from a structured `ParsedResume` rather than maintaining resume-derived candidate information in Python configuration.
+
+### Reason
+
+Using the resume as the source of truth:
+
+- Eliminates duplicated candidate data
+- Reduces the risk of the profile becoming inconsistent with the resume
+- Allows resume updates to change job matching without code changes
+- Creates a foundation for resume uploads and multiple resume versions
+- Makes the live pipeline reflect the intended product workflow
+
+### Alternatives Considered
+
+Maintaining a hardcoded profile was simpler during early matching development, but it required manual updates and prevented the uploaded resume from driving recommendations.
+
+---
+
+## ADR-016: Track Experience by Employment Type and Duration
+
+**Status:** Accepted
+
+### Decision
+
+Track experience separately in months for:
+
+- Full-time employment
+- Internships
+- Co-ops
+- Part-time employment
+- Contract work
+
+### Reason
+
+A single years-of-experience field can overstate candidates whose relevant experience consists of internships or short-term roles.
+
+Separating employment categories allows the matching engine to make more accurate entry-level and seniority judgments.
+
+### Alternatives Considered
+
+A single `years_experience` field was simpler but discarded important context and incorrectly represented internship experience as equivalent to full-time employment.
+
+---
+
+## ADR-017: Separate Resume-Derived Facts from Candidate Preferences
+
+**Status:** Accepted
+
+### Decision
+
+Store resume-derived facts in `CandidateProfile` while loading non-resume preferences from `config/preferences.json`.
+
+### Reason
+
+The resume can provide skills, education, certifications, projects, and experience, but it cannot reliably determine:
+
+- Preferred locations
+- Willingness to relocate
+- Citizenship or work authorization
+
+Keeping these values separate:
+
+- Avoids unsupported inference
+- Allows preference changes without editing source code
+- Prepares the application for a future settings interface
+- Keeps candidate generation deterministic and transparent
+
+### Alternatives Considered
+
+Hardcoding preferences in `main.py` worked temporarily but mixed application configuration with orchestration logic.

@@ -154,3 +154,44 @@ Established the core backend architecture for the AI Career Agent.
 - Add experience, education, certification, and work-authorization scoring.
 - Persist richer matching explanations and category scores.
 - Begin support for multiple job collectors.
+
+---
+
+## 2026-07-16 — Resume-Generated Candidate Profiles and Preferences
+
+### Implemented
+
+- Expanded `CandidateProfile` to track experience by employment type.
+- Replaced the single years-of-experience field with month-based totals for full-time, internship, co-op, part-time, and contract work.
+- Built a `CandidateProfile` builder using structured resume data.
+- Added candidate-name extraction.
+- Added experience aggregation by employment category.
+- Added deterministic desired-role inference from skills, certifications, and project technologies.
+- Updated `JobPipeline` to receive a candidate profile through dependency injection.
+- Removed the live pipeline's dependency on a hardcoded global candidate.
+- Added a validated `CandidatePreferences` model.
+- Added JSON-based loading for preferred locations, relocation willingness, and work authorization.
+- Added validation and error handling for missing, malformed, and incomplete preference files.
+- Increased the automated test suite to 55 passing tests.
+
+### Challenges
+
+- Resume-derived facts had to remain separate from personal preferences that cannot be safely inferred.
+- Internship experience needed to be represented independently from full-time professional experience.
+- The application required a clean transition away from the temporary hardcoded candidate profile.
+- Configuration data and Python configuration modules needed clearly separated locations.
+
+### Lessons Learned
+
+- The resume should be the source of truth for education, skills, certifications, projects, and experience.
+- User preferences should be explicit rather than inferred.
+- Dependency injection makes the matching pipeline easier to adapt and test.
+- Month-based experience totals preserve more useful information than a single rounded year count.
+- Configuration files make personal settings editable without changing application code.
+
+### Next
+
+- Add experience alignment scoring.
+- Add education, certification, and work-authorization scoring.
+- Improve category weighting and recommendation explanations.
+- Persist richer score breakdowns.
