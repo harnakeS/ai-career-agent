@@ -91,20 +91,31 @@ Automatically transform a resume into structured candidate data that drives job 
 
 ---
 
-# Milestone 4 — AI Recommendation Engine
+# Milestone 4 — AI Job Understanding
 
 ## Goal
 
-Move beyond keyword matching using AI.
+Transform unstructured job descriptions into a structured representation that can drive intelligent matching.
 
-### Planned
+### Completed
 
-- [ ] Semantic embeddings
-- [ ] Similarity search
-- [ ] Hybrid scoring
-- [ ] LLM evaluation
-- [ ] Explainable AI recommendations
-- [ ] Recommendation confidence score
+- [x] Canonical JobRequirements model
+- [x] Provider-independent extraction interface
+- [x] OpenAI structured extraction
+- [x] Ollama structured extraction
+- [x] Requirement deduplication
+- [x] Requirement importance classification
+- [x] Profession-independent requirement categories
+- [x] Deterministic experience-duration normalization
+- [x] Structured extraction validation
+- [x] Real job extraction testing
+
+### Remaining
+
+- [ ] Candidate evidence model
+- [ ] Resume evidence extraction
+- [ ] Evidence confidence scoring
+- [ ] Explainable evidence matching
 
 ---
 
@@ -178,7 +189,7 @@ Provide a single interface for managing my job search.
 
 ---
 
-# Milestone 8 — AI Career Assistant
+# Milestone 8 — AI Application Assistant
 
 ## Goal
 
@@ -186,12 +197,15 @@ Help prepare high-quality applications.
 
 ### Planned
 
-- [ ] Resume optimization
-- [ ] Resume gap analysis
+- [ ] Job-specific resume tailoring
+- [ ] Resume gap analysis and improvement suggestions
 - [ ] Cover letter generation
 - [ ] Interview preparation
 - [ ] Company research summaries
 - [ ] Personalized application recommendations
+- [ ] Explain why each requirement matched
+- [ ] Show supporting resume evidence
+- [ ] Explain missing qualifications
 
 ---
 

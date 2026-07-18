@@ -210,3 +210,27 @@ Established the core backend architecture for the AI Career Agent.
 - Added validated schemas for future LLM-based requirement extraction.
 - Chose an LLM-driven skill extraction approach instead of maintaining a fixed skill vocabulary.
 - Test suite increased to 94 passing tests.
+
+---
+
+## 2026-07-18 - Requirement Extraction Quality Improvements
+
+- Added `LICENSE` and `SCHEDULE` requirement categories.
+- Improved the LLM extraction prompt with profession-independent category definitions.
+- Verified that the extractor correctly distinguishes professional licenses from education and schedule constraints from skills.
+- Added deterministic experience-duration parsing.
+- Added support for numeric and written durations such as `1 year`, `1.5 years`, `6 months`, and `one year`.
+- Updated the converter to derive `minimum_experience_months` when the LLM omits it.
+- Preserved explicit LLM-provided duration metadata when available.
+- Increased the automated test suite to 127 passing tests.
+
+### Live Extraction Result
+
+The Ollama extraction pipeline correctly classified:
+
+- New Jersey RN license as `license`
+- Weekend availability as `schedule`
+- BLS and ACLS as `certification`
+- Acute-care nursing experience as `experience`
+
+The experience duration was normalized deterministically to avoid relying entirely on LLM consistency.

@@ -182,3 +182,7 @@ def test_get_preferred_returns_all_preferred_requirements() -> None:
         "Docker",
         "Security+",
     ]
+
+def test_requirement_categories_include_general_job_constraints() -> None:
+    assert RequirementCategory.LICENSE.value == "license"
+    assert RequirementCategory.SCHEDULE.value == "schedule"

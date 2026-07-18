@@ -5,11 +5,13 @@ from pydantic import BaseModel, Field
 
 class RequirementCategory(StrEnum):
     """Supported types of job requirements."""
-
+    
     SKILL = "skill"
     EDUCATION = "education"
     EXPERIENCE = "experience"
     CERTIFICATION = "certification"
+    LICENSE = "license"
+    SCHEDULE = "schedule"
     LOCATION = "location"
     LANGUAGE = "language"
     CLEARANCE = "clearance"

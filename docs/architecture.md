@@ -179,6 +179,11 @@ Resume-derived fields include:
 - Tools and technologies
 - Concepts
 - Certifications
+- Licenses
+- Schedule
+- Clearances
+- Authorization
+- Languages
 - Full-time experience months
 - Internship experience months
 - Co-op experience months
@@ -631,3 +636,32 @@ Requirement Evidence Matcher
 - [ ] Add deduplication and normalization
 - [ ] Match requirements against candidate evidence
 - [ ] Integrate requirement-based scoring into the pipeline
+
+---
+
+## Requirement Extraction Pipeline
+
+Job descriptions are converted into structured requirements through a provider-independent extraction pipeline:
+
+1. `RequirementsExtractor` extracts structured requirement data.
+2. The extracted output is validated using `ExtractedJobRequirements`.
+3. `RequirementConverter` converts the validated output into the canonical `JobRequirements` model.
+4. Deterministic normalization fills or corrects structured metadata when possible.
+
+The LLM is responsible for semantic interpretation and identifying requirements. Deterministic application code is responsible for validation, deduplication, normalization, and scoring.
+
+### Experience Duration Normalization
+
+The extraction pipeline does not rely solely on the LLM to populate `minimum_experience_months`.
+
+When the LLM leaves this field empty, the converter examines extracted experience requirements and converts durations into months.
+
+Examples:
+
+- `1 year` → `12`
+- `1.5 years` → `18`
+- `2 years` → `24`
+- `6 months` → `6`
+- `one year` → `12`
+
+An explicit value returned by the extractor takes priority over the deterministic fallback.
