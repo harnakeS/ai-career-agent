@@ -139,7 +139,9 @@ They do not:
 
 The Remotive collector returns canonical `JobPosting` objects and is integrated with the existing processing pipeline.
 
-The Greenhouse source returns provider-neutral `RawJobPosting` objects. It has been verified against a live public job board but is not yet connected to canonical job conversion or persistence.
+The Greenhouse source returns provider-neutral `RawJobPosting` objects. The selected-company collection service converts them into canonical `JobPosting` objects.
+
+The Greenhouse orchestration path has been verified against a live public job board but is not yet connected to persistence, filtering, or matching.
 
 #### Planned Integrations
 
@@ -496,7 +498,7 @@ This keeps the application entry point easy to understand and prevents it from b
 
 ## Testing
 
-Test Count: 213
+Test Count: 231
 
 The project currently uses `pytest`.
 
@@ -543,6 +545,16 @@ Existing tests cover:
 - Publication-timestamp parsing
 - Separation of publication and update timestamps
 - Rejection of invalid timestamps and blank descriptions
+- Job-source registration and resolution
+- Duplicate provider-registration prevention
+- Missing-provider handling
+- Invalid source-implementation rejection
+- Multi-company collection
+- Multiple-provider resolution
+- Disabled-company handling
+- Per-company failure isolation
+- Atomic company-snapshot conversion
+- Propagation of unexpected implementation errors
 
 Tests are added before major features are integrated into the live pipeline.
 
@@ -564,7 +576,7 @@ Planned test coverage includes:
 The current version has several known limitations:
 
 - The existing processing pipeline currently uses only the Remotive collector.
-- Greenhouse jobs can be converted into canonical `JobPosting` objects but are not yet connected to persistence, filtering, or matching.
+- The selected-company service can collect and convert Greenhouse jobs but is not yet connected to persistence, filtering, or matching.
 - Location, relocation, and work-authorization preferences are still supplied in `main.py`.
 - Target-role inference currently uses deterministic keyword rules.
 - The original rule matcher still relies primarily on exact term matching.
@@ -885,3 +897,127 @@ The complete collection and conversion path was tested against Datadog's public 
 The validation converted all 414 collected raw postings into canonical `JobPosting` objects without errors.
 
 As expected, zero postings received an original publication date because the Greenhouse list response supplied update timestamps rather than verified publication timestamps.
+
+
+---
+
+## Job Source Registry
+
+The `JobSourceRegistry` maps each supported provider to its job-source implementation.
+
+JobSourceProvider
+    ↓
+JobSourceRegistry
+    ↓
+JobSource Implementation
+
+The registry:
+
+- Registers provider implementations
+- Resolves implementations by provider
+- Prevents duplicate provider registrations
+- Reports missing provider implementations
+- Rejects objects that do not satisfy the `JobSource` protocol
+- Preserves registration order for inspection
+
+The registry does not instantiate providers.
+
+Provider construction remains part of application composition so dependencies such as HTTP clients can be supplied explicitly.
+
+This avoids placing provider-selection logic in `main.py` or introducing a growing conditional block as more recruiting platforms are added.
+
+---
+
+## Multi-Company Collection
+
+The `CompanyJobCollectionService` coordinates selected-company collection.
+
+CompanySource Configurations
+    ↓
+JobSourceRegistry
+    ↓
+Provider-Specific Job Sources
+    ↓
+RawJobPosting Objects
+    ↓
+JobPostingConverter
+    ↓
+Canonical JobPosting Objects
+    ↓
+CompanyCollectionResult
+
+The service:
+
+- Accepts multiple company configurations
+- Skips disabled companies before provider resolution
+- Resolves the correct implementation through the registry
+- Collects provider-neutral raw postings
+- Converts raw postings into canonical jobs
+- Records successful company sources
+- Records skipped company sources
+- Records expected company-level failures
+- Allows successful companies to continue when another company fails
+
+### Collection Results
+
+`CompanyCollectionResult` contains:
+
+- Canonical jobs
+- Successful company sources
+- Skipped company sources
+- Structured collection failures
+
+Each `CompanyCollectionFailure` records:
+
+- Company name
+- Provider
+- Source identifier
+- Error type
+- Error message
+
+This gives future scheduling and monitoring layers enough information to report individual company failures without losing successful results from other sources.
+
+### Atomic Company Snapshots
+
+Raw postings are converted as a complete company-level group before they are added to the combined result.
+
+If one posting from a company fails conversion, none of that company's postings are included in the successful result.
+
+This prevents incomplete collection snapshots from later causing valid jobs to be incorrectly marked inactive or closed.
+
+### Failure Isolation
+
+The service catches expected `JobSourceError` failures, including:
+
+- Missing provider registrations
+- Provider request failures
+- Invalid provider payloads
+- Canonical conversion failures
+
+Unexpected programming errors are not suppressed.
+
+Errors such as `RuntimeError`, `AttributeError`, and other implementation defects continue to propagate so they remain visible during development and monitoring.
+
+### Live Orchestration Validation
+
+The complete selected-company orchestration path was verified against Datadog's public Greenhouse board.
+
+CompanySource
+    ↓
+JobSourceRegistry
+    ↓
+CompanyJobCollectionService
+    ↓
+GreenhouseJobSource
+    ↓
+JobPostingConverter
+    ↓
+415 Canonical JobPosting Objects
+
+The validation reported:
+
+- One successful company source
+- Zero skipped company sources
+- Zero company failures
+- 415 canonical postings
+- Zero original publication dates, as expected from the available Greenhouse fields

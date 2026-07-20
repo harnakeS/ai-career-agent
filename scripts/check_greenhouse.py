@@ -1,17 +1,14 @@
 import argparse
 
-from app.job_sources.converter import JobPostingConverter
-from app.job_sources.errors import (
-    JobPostingConversionError,
-    JobSourceError,
+from app.job_sources.collection import (
+    CompanyJobCollectionService,
 )
 from app.job_sources.greenhouse import GreenhouseJobSource
 from app.job_sources.models import (
     CompanySource,
     JobSourceProvider,
-    RawJobPosting
 )
-from app.models.job import JobPosting
+from app.job_sources.registry import JobSourceRegistry
 
 
 def parse_arguments() -> argparse.Namespace:
@@ -36,61 +33,60 @@ def parse_arguments() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def convert_postings(
-    raw_postings: list[RawJobPosting],
-) -> list[JobPosting]:
-    converter = JobPostingConverter()
-    converted_postings: list[JobPosting] = []
-
-    for raw_posting in raw_postings:
-        try:
-            converted_posting = converter.convert(
-                raw_posting
-            )
-        except JobPostingConversionError as exc:
-            raise SystemExit(
-                "Unable to convert Greenhouse posting "
-                f"'{raw_posting.external_id}' "
-                f"('{raw_posting.title}'): {exc}"
-            ) from exc
-
-        converted_postings.append(converted_posting)
-
-    return converted_postings
-
-
 def main() -> None:
     arguments = parse_arguments()
 
-    source = CompanySource(
+    company_source = CompanySource(
         company_name=arguments.company_name,
         provider=JobSourceProvider.GREENHOUSE,
         source_identifier=arguments.board_token,
         careers_url=arguments.careers_url,
     )
 
-    collector = GreenhouseJobSource()
+    registry = JobSourceRegistry(
+        sources={
+            JobSourceProvider.GREENHOUSE: (
+                GreenhouseJobSource()
+            ),
+        }
+    )
+    collection_service = CompanyJobCollectionService(
+        registry=registry
+    )
 
-    try:
-        raw_postings = collector.collect(source)
-    except JobSourceError as exc:
-        raise SystemExit(
-            f"Greenhouse collection failed: {exc}"
-        ) from exc
+    result = collection_service.collect([
+        company_source
+    ])
 
-    postings = convert_postings(raw_postings)
+    if result.failures:
+        print("Collection failed.")
+
+        for failure in result.failures:
+            print()
+            print(f"Company: {failure.company_name}")
+            print(f"Provider: {failure.provider.value}")
+            print(f"Error type: {failure.error_type}")
+            print(f"Message: {failure.message}")
+
+        raise SystemExit(1)
 
     print(
-        f"Collected {len(raw_postings)} raw posting(s) "
-        f"for {source.company_name}."
+        f"Successful company sources: "
+        f"{len(result.successful_sources)}"
     )
     print(
-        f"Converted {len(postings)} canonical posting(s)."
+        f"Skipped company sources: "
+        f"{len(result.skipped_sources)}"
+    )
+    print(
+        f"Collected and converted "
+        f"{len(result.jobs)} canonical posting(s) "
+        f"for {company_source.company_name}."
     )
 
     postings_with_dates = sum(
         posting.date_posted is not None
-        for posting in postings
+        for posting in result.jobs
     )
 
     print(
@@ -98,11 +94,14 @@ def main() -> None:
         f"{postings_with_dates}"
     )
 
-    for posting in postings[:5]:
+    for posting in result.jobs[:5]:
         print()
         print(f"ID: {posting.requisition_id}")
         print(f"Title: {posting.title}")
-        print(f"Location: {posting.location or 'Not specified'}")
+        print(
+            f"Location: "
+            f"{posting.location or 'Not specified'}"
+        )
         print(
             f"Published: "
             f"{posting.date_posted or 'Not supplied'}"

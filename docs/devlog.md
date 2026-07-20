@@ -398,3 +398,63 @@ The change from 415 postings during the previous check to 414 postings during th
 - Select provider implementations through company configuration.
 - Build a multi-company collection service.
 - Connect canonical Greenhouse postings to persistence without duplicating existing jobs.
+
+
+---
+
+## 2026-07-20 - Job Source Registry and Multi-Company Collection
+
+### Implemented
+
+- Added the `JobSourceRegistry`.
+- Added provider-to-implementation registration.
+- Added provider implementation resolution.
+- Added duplicate-registration prevention.
+- Added missing-provider error handling.
+- Added invalid source-implementation validation.
+- Added `CompanyCollectionFailure`.
+- Added `CompanyCollectionResult`.
+- Added `CompanyJobCollectionService`.
+- Added disabled-company handling.
+- Added multiple-provider resolution.
+- Added per-company failure isolation.
+- Added atomic company-level conversion.
+- Preserved unexpected programming-error propagation.
+- Updated the Greenhouse integration script to use the registry and collection service.
+- Increased the automated test suite to 231 passing tests.
+
+### Live Integration Result
+
+The complete selected-company orchestration path was tested against Datadog's public Greenhouse board.
+
+The live run reported:
+
+- One successful company source
+- Zero skipped sources
+- Zero collection failures
+- 415 canonical job postings
+- Zero original publication dates
+
+All collected postings passed canonical conversion.
+
+### Architectural Decisions
+
+- Provider selection is handled by a registry rather than conditional logic in the application entry point.
+- Provider implementations are constructed outside the registry and registered explicitly.
+- Disabled company configurations are skipped before provider resolution.
+- Expected job-source failures are isolated by company.
+- Unexpected programming errors are allowed to propagate.
+- Company-level conversion is atomic.
+- An incomplete company snapshot is not returned as a successful collection.
+
+### Validation
+
+- Completed the live Greenhouse orchestration path successfully.
+- Completed 231 automated tests successfully.
+
+### Next
+
+- Connect `CompanyJobCollectionService` to job persistence.
+- Preserve duplicate detection through the existing repository.
+- Produce a structured persistence summary for each collection run.
+- Verify that running the same Greenhouse collection twice does not create duplicate database rows.

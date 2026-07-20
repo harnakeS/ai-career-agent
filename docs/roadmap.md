@@ -169,11 +169,11 @@ Monitor the companies I actually want to work for.
 - [x] Canonical raw-job conversion
 - [x] Timestamp parsing and normalization
 - [x] HTML description normalization
+- [x] Job-source registry
+- [x] Multi-source execution
 
 ### Planned
 
-- [ ] Job-source registry
-- [ ] Multi-source execution
 - [ ] Greenhouse pipeline integration
 - [ ] Lever job source
 - [ ] Workday job source
