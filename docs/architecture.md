@@ -665,3 +665,28 @@ Examples:
 - `one year` → `12`
 
 An explicit value returned by the extractor takes priority over the deterministic fallback.
+
+---
+
+## Dynamic Vocabulary and Requirement Normalization
+
+Job postings and resumes may describe the same concept using different wording.
+
+Examples include:
+
+- `JS` and `JavaScript`
+- `AWS` and `Amazon Web Services`
+- `Bachelor of Arts` and `Bachelor's Degree`
+- `K8s` and `Kubernetes`
+
+The system separates generic text normalization from domain-specific concept resolution.
+
+Raw Requirement or Evidence Value
+        ↓
+Generic Text Normalization
+        ↓
+Category-Aware Vocabulary Repository
+        ↓
+Canonical Concept
+        ↓
+Evidence Matching

@@ -10,6 +10,21 @@ Commercial SaaS features (authentication, subscriptions, billing, multi-user sup
 
 ---
 
+## Product Scope
+
+The project focuses on:
+
+- job collection
+- structured job understanding
+- candidate evidence extraction
+- explainable job matching
+- job recommendations
+- job-specific resume tailoring
+- grounded cover-letter generation
+- application tracking
+
+---
+
 # Milestone 1 — Core Backend ✅ Complete
 
 ## Goal
@@ -91,31 +106,36 @@ Automatically transform a resume into structured candidate data that drives job 
 
 ---
 
-# Milestone 4 — AI Job Understanding
-
-## Goal
-
-Transform unstructured job descriptions into a structured representation that can drive intelligent matching.
+## Milestone 4: Structured Job Understanding
 
 ### Completed
 
-- [x] Canonical JobRequirements model
-- [x] Provider-independent extraction interface
-- [x] OpenAI structured extraction
-- [x] Ollama structured extraction
-- [x] Requirement deduplication
-- [x] Requirement importance classification
-- [x] Profession-independent requirement categories
-- [x] Deterministic experience-duration normalization
-- [x] Structured extraction validation
-- [x] Real job extraction testing
+- Structured job-requirement models
+- Requirement categories and importance levels
+- LLM-based structured requirement extraction
+- Deterministic requirement conversion
+- Deterministic experience-duration parsing
+- Minimum-experience normalization
+- Entry-level requirement detection
+- Work-authorization and sponsorship fields
+- License and schedule requirement extraction
+- Generic vocabulary text normalization
+- Category-aware vocabulary concepts
+- Vocabulary repository abstraction
+- In-memory vocabulary repository
+- Runtime vocabulary registration
+- Alias-conflict detection
+- Dynamic canonical concept resolution
+- Requirement normalizer with injected vocabulary
 
-### Remaining
+### Next
 
-- [ ] Candidate evidence model
-- [ ] Resume evidence extraction
-- [ ] Evidence confidence scoring
-- [ ] Explainable evidence matching
+- Integrate vocabulary resolution into `EvidenceMatcher`
+- Match canonical requirement concepts to canonical candidate evidence
+- Add explicit match reasons for alias-based matches
+- Add deterministic experience-duration matching
+- Add education-equivalency matching
+- Add certification and license matching rules
 
 ---
 
@@ -135,6 +155,14 @@ Monitor the companies I actually want to work for.
 - [ ] Company configuration
 - [ ] Multi-collector execution
 - [ ] Closed-job detection
+- SQLite-backed vocabulary repository
+- Persistent canonical concepts and aliases
+- Vocabulary import and export
+- Tracking of newly discovered terms
+- Review workflow for proposed aliases
+- Provenance for vocabulary mappings
+- Confidence or approval status for learned mappings
+- User-specific vocabulary extensions
 
 Target companies include:
 

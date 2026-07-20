@@ -234,3 +234,37 @@ The Ollama extraction pipeline correctly classified:
 - Acute-care nursing experience as `experience`
 
 The experience duration was normalized deterministically to avoid relying entirely on LLM consistency.
+
+---
+
+## 2026-07-20 - Dynamic Vocabulary Foundation
+
+Implemented a category-aware vocabulary layer for requirement and evidence normalization.
+
+### Completed
+
+- Added `VocabularyCategory` to separate vocabulary concepts by domain.
+- Added `VocabularyConcept` for canonical values and aliases.
+- Added the `VocabularyRepository` protocol.
+- Added `InMemoryVocabularyRepository` for development and testing.
+- Added runtime vocabulary registration.
+- Added category-aware concept resolution.
+- Added conflict detection for aliases mapped to different concepts within the same category.
+- Allowed the same alias to exist in separate categories.
+- Moved generic text cleanup into `app/vocabulary/text.py`.
+- Updated `RequirementNormalizer` to use an injected vocabulary repository.
+- Removed embedded domain vocabulary from the normalizer.
+- Preserved fallback behavior for unknown terms.
+- Verified that new vocabulary concepts can be added without changing normalization or matching source code.
+
+### Architectural Decisions
+
+The normalizer does not own a static vocabulary.
+
+Generic formatting rules remain in code because they apply universally. Domain-specific aliases are supplied through a repository so they can later be loaded from persistent storage.
+
+Vocabulary resolution is category-aware because the same abbreviation may represent different concepts in different contexts.
+
+Example:
+BA → Bachelor of Arts
+BA → Business Analyst
