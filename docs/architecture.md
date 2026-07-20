@@ -20,23 +20,19 @@ The long-term goal is to support multiple company career platforms, semantic res
 
 ## Current Data Flow
 
-Job Source
-    ↓
-Job Collector
-    ↓
-JobPosting Model
-    ↓
-Job Processing Pipeline
-    ↓
-Eligibility Filters
-    ↓
-Deterministic Rule Matcher
-    ↓
-Job Repository
-    ↓
-SQLite Database
+Selected-company monitoring is being developed through a separate provider-neutral source layer:
 
-The processing pipeline coordinates the workflow. Individual components remain separate so that collectors, matching methods, databases, and notification systems can be replaced or expanded independently.
+CompanySource
+    ↓
+Provider-Specific JobSource
+    ↓
+RawJobPosting
+    ↓
+Canonical Job Conversion
+    ↓
+Existing Processing Pipeline
+
+The Greenhouse implementation currently reaches the `RawJobPosting` stage. Canonical conversion and pipeline integration are the next steps.
 
 ---
 
@@ -46,6 +42,13 @@ app/
 ├── collectors/
 │   ├── base.py
 │   └── remotive.py
+│
+├── job_sources/
+│   ├── errors.py
+│   ├── greenhouse.py
+│   ├── http.py
+│   ├── models.py
+│   └── protocol.py
 │
 ├── config/
 │   └── candidate.py
@@ -92,6 +95,7 @@ tests/       Unit tests
 data/        Local SQLite database
 docs/        Architecture and development documentation
 logs/        Future application logs
+scripts/      Manual integration and development checks
 
 ---
 
@@ -128,18 +132,22 @@ They do not:
 - Send notifications
 - Track application status
 
-#### Current Collector
+#### Current Integrations
 
 - Remotive public jobs API
+- Greenhouse public Job Board API
 
-#### Planned Collectors
+The Remotive collector returns canonical `JobPosting` objects and is integrated with the existing processing pipeline.
 
-- Greenhouse
+The Greenhouse source returns provider-neutral `RawJobPosting` objects. It has been verified against a live public job board but is not yet connected to canonical job conversion or persistence.
+
+#### Planned Integrations
+
 - Lever
 - Workday
 - Ashby
 - SmartRecruiters
-- Company-specific custom collectors
+- Company-specific custom sources
 
 ---
 
@@ -488,7 +496,7 @@ This keeps the application entry point easy to understand and prevents it from b
 
 ## Testing
 
-Test Count: 55
+Test Count: 203
 
 The project currently uses `pytest`.
 
@@ -520,6 +528,15 @@ Existing tests cover:
 - Candidate-preferences validation
 - Missing and malformed preference-file handling
 - Resume-generated profile integration with the job pipeline
+- Dynamic vocabulary resolution
+- Vocabulary alias-conflict detection
+- Vocabulary-aware evidence matching
+- Experience-duration evidence matching
+- Job-source model validation
+- Job-source protocol conformance
+- Greenhouse payload conversion
+- Disabled and incompatible source handling
+- Greenhouse payload-error handling
 
 Tests are added before major features are integrated into the live pipeline.
 
@@ -540,10 +557,12 @@ Planned test coverage includes:
 
 The current version has several known limitations:
 
-- It only supports one live job source.
+- The existing processing pipeline currently uses only the Remotive collector.
+- The Greenhouse source has been verified independently but is not yet connected to canonical job conversion, persistence, or matching.
 - Location, relocation, and work-authorization preferences are still supplied in `main.py`.
 - Target-role inference currently uses deterministic keyword rules.
-- Job scoring relies on exact term matching.
+- The original rule matcher still relies primarily on exact term matching.
+- The new evidence matcher supports canonical vocabulary resolution but is not yet integrated into final job scoring.
 - Only jobs that pass eligibility filtering receive match scores.
 - Jobs that are skipped do not yet store an eligibility reason.
 - The application does not yet detect closed postings.
@@ -690,3 +709,116 @@ Category-Aware Vocabulary Repository
 Canonical Concept
         ↓
 Evidence Matching
+
+
+The vocabulary repository resolves aliases within a specific category.
+
+This prevents ambiguous aliases from matching across unrelated domains. For example, `BA` may represent either `Bachelor of Arts` or `Business Analyst`, depending on the vocabulary category.
+
+The `RequirementNormalizer` performs generic text cleanup before requesting canonical concept resolution from the repository.
+
+The normalizer contains no hardcoded technology, education, certification, or role aliases.
+
+---
+
+## Vocabulary-Aware Evidence Matching
+
+The `EvidenceMatcher` compares structured job requirements with structured candidate evidence.
+
+Job Requirement
+    ↓
+Category-Aware Normalization
+    ↓
+Canonical Vocabulary Concept
+    ↓
+Compatible Candidate Evidence
+    ↓
+RequirementMatch
+
+The matcher:
+
+- Selects candidate evidence from the compatible category
+- Supports normalized direct-value matches
+- Supports vocabulary-resolved alias matches
+- Preserves category isolation
+- Returns the evidence supporting each match
+- Produces human-readable match reasons
+- Reports unsupported requirement categories explicitly
+
+Duration-based experience requirements are converted into months and compared deterministically.
+
+Experience Requirement
+    ↓
+Required Months
+            +
+Candidate Experience Evidence
+    ↓
+Available Months
+    ↓
+RequirementMatch
+
+Explicit duration evidence is currently combined when evaluating total experience.
+
+The matcher does not yet detect overlapping employment periods, duplicated timeline evidence, or concurrent positions. Date-aware experience aggregation will be introduced later.
+
+---
+
+## Selected-Company Job Sources
+
+The selected-company source layer provides a common interface for retrieving jobs from different recruiting platforms.
+
+A `CompanySource` contains:
+
+- Company name
+- Source provider
+- Provider-specific source identifier
+- Public careers URL
+- Enabled status
+
+Every provider implementation satisfies the `JobSource` protocol:
+
+collect(source: CompanySource) -> list[RawJobPosting]
+
+This lets future collection workflows use Greenhouse, Lever, Workday, and other providers without depending on their internal response formats.
+
+### HTTP Boundary
+
+Network access is separated from provider conversion through the `JsonHttpClient` protocol.
+
+The production `UrllibJsonHttpClient`:
+
+- Requests JSON over HTTP
+- Applies a request timeout
+- Supplies explicit request headers
+- Validates that the response is a JSON object
+- Converts transport failures into job-source exceptions
+- Converts invalid JSON into job-source payload errors
+
+Provider tests inject a deterministic HTTP stub instead of making live network requests.
+
+### Greenhouse Job Source
+
+The `GreenhouseJobSource` uses a configured Greenhouse board token to retrieve published jobs from the public Greenhouse Job Board API.
+
+CompanySource
+    ↓
+Greenhouse Board Token
+    ↓
+Greenhouse Job Board API
+    ↓
+Payload Validation
+    ↓
+RawJobPosting Objects
+
+The source:
+
+- Skips disabled company configurations
+- Rejects configurations for incompatible providers
+- Requests complete job-description content
+- Validates required provider fields
+- Preserves the official application URL
+- Converts provider failures into job-source domain errors
+
+The integration was manually verified against Datadog's public Greenhouse board and collected 415 published postings.
+
+Greenhouse currently supplies `updated_at` through the job-list endpoint. This value is temporarily stored in `RawJobPosting.posted_at`. Canonical job conversion will later distinguish publication, update, discovery, and collection timestamps.

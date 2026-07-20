@@ -127,15 +127,26 @@ Automatically transform a resume into structured candidate data that drives job 
 - Alias-conflict detection
 - Dynamic canonical concept resolution
 - Requirement normalizer with injected vocabulary
+- Vocabulary-aware evidence matching
+- Category-isolated evidence comparison
+- Explainable direct and alias-based match reasons
+- Deterministic experience-duration matching
 
 ### Next
 
-- Integrate vocabulary resolution into `EvidenceMatcher`
-- Match canonical requirement concepts to canonical candidate evidence
-- Add explicit match reasons for alias-based matches
-- Add deterministic experience-duration matching
 - Add education-equivalency matching
 - Add certification and license matching rules
+
+### Future Vocabulary Improvements
+
+- SQLite-backed vocabulary repository
+- Persistent canonical concepts and aliases
+- Vocabulary import and export
+- Tracking of newly discovered terms
+- Review workflow for proposed aliases
+- Provenance for vocabulary mappings
+- Confidence or approval status for learned mappings
+- User-specific vocabulary extensions
 
 ---
 
@@ -145,24 +156,30 @@ Automatically transform a resume into structured candidate data that drives job 
 
 Monitor the companies I actually want to work for.
 
+### Completed
+
+- [x] Provider-neutral company configuration
+- [x] Provider-neutral raw job-posting model
+- [x] Shared job-source protocol
+- [x] Injectable JSON HTTP boundary
+- [x] Job-source error hierarchy
+- [x] Greenhouse job source
+- [x] Greenhouse payload validation
+- [x] Live Greenhouse integration verification
+
 ### Planned
 
-- [ ] Greenhouse collector
-- [ ] Lever collector
-- [ ] Workday collector
-- [ ] Ashby collector
-- [ ] SmartRecruiters collector
-- [ ] Company configuration
-- [ ] Multi-collector execution
+- [ ] Canonical raw-job conversion
+- [ ] Timestamp parsing and normalization
+- [ ] HTML description normalization
+- [ ] Job-source registry
+- [ ] Multi-source execution
+- [ ] Greenhouse pipeline integration
+- [ ] Lever job source
+- [ ] Workday job source
+- [ ] Ashby job source
+- [ ] SmartRecruiters job source
 - [ ] Closed-job detection
-- SQLite-backed vocabulary repository
-- Persistent canonical concepts and aliases
-- Vocabulary import and export
-- Tracking of newly discovered terms
-- Review workflow for proposed aliases
-- Provenance for vocabulary mappings
-- Confidence or approval status for learned mappings
-- User-specific vocabulary extensions
 
 Target companies include:
 

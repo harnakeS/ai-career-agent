@@ -268,3 +268,72 @@ Vocabulary resolution is category-aware because the same abbreviation may repres
 Example:
 BA → Bachelor of Arts
 BA → Business Analyst
+
+Categories prevent those meanings from being merged accidentally.
+
+### Validation
+
+- Increased the automated test suite to 170 passing tests.
+
+### Next
+
+- Integrate vocabulary resolution with candidate evidence matching.
+
+
+---
+
+## 2026-07-20 - Canonical Evidence Matching and Greenhouse Integration
+
+### Implemented
+
+- Integrated category-aware vocabulary resolution into `EvidenceMatcher`.
+- Preserved normalized direct-value matching.
+- Added explainable reasons for direct and vocabulary-resolved matches.
+- Added category isolation during evidence matching.
+- Added deterministic experience-duration comparison.
+- Added support for combining explicit duration evidence.
+- Preserved ordinary normalized matching for experience requirements without durations.
+- Added provider-neutral `CompanySource` and `RawJobPosting` models.
+- Added the runtime-checkable `JobSource` protocol.
+- Added job-source domain exceptions.
+- Added an injectable JSON HTTP client boundary.
+- Implemented the Greenhouse Job Board API integration.
+- Added validation for Greenhouse response payloads.
+- Added support for disabled company sources.
+- Added incompatible-provider validation.
+- Added a manual Greenhouse integration script.
+- Increased the automated test suite to 203 passing tests.
+
+### Live Integration Result
+
+The Greenhouse source successfully collected 415 published jobs from Datadog's public job board.
+
+The collected postings included:
+
+- Provider job identifiers
+- Job titles
+- Locations
+- Update timestamps
+- Full job descriptions
+- Official Datadog application links
+
+### Architectural Decisions
+
+- Provider-specific responses are converted into `RawJobPosting` objects before entering the rest of the application.
+- Network access is isolated behind an injectable HTTP-client protocol.
+- Live network checks remain outside the permanent unit-test suite.
+- Provider implementations expose the same `JobSource` contract.
+- Company sources can be disabled without modifying provider code.
+
+### Known Limitations
+
+- Greenhouse collection is not yet connected to the existing processing pipeline.
+- `RawJobPosting.posted_at` temporarily stores Greenhouse's `updated_at` value.
+- Experience-duration matching does not yet detect overlapping or duplicated employment periods.
+
+### Next
+
+- Convert `RawJobPosting` into the canonical `JobPosting` model.
+- Separate publication, update, discovery, and collection timestamps.
+- Normalize HTML job descriptions before persistence and matching.
+- Integrate selected-company sources with the existing processing pipeline.
