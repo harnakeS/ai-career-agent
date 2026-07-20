@@ -12,3 +12,6 @@ class JobSourceRequestError(JobSourceError):
 
 class JobSourcePayloadError(JobSourceError):
     """Raised when a provider returns an invalid or unexpected payload."""
+
+class JobPostingConversionError(JobSourceError):
+    """Raised when a raw posting cannot become a canonical job posting."""

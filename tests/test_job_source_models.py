@@ -62,7 +62,8 @@ def test_creates_raw_job_posting() -> None:
         location="New York, NY",
         description="Build and maintain software systems.",
         application_url="https://example.com/jobs/12345",
-        posted_at="2026-07-20T12:00:00Z",
+        published_at="2026-07-18T12:00:00Z",
+        updated_at="2026-07-20T12:00:00Z",
         source_provider=JobSourceProvider.GREENHOUSE,
         source_identifier="example-company",
     )
@@ -70,6 +71,8 @@ def test_creates_raw_job_posting() -> None:
     assert posting.external_id == "12345"
     assert posting.title == "Software Engineer"
     assert posting.source_provider == JobSourceProvider.GREENHOUSE
+    assert posting.published_at == "2026-07-18T12:00:00Z"
+    assert posting.updated_at == "2026-07-20T12:00:00Z"
 
 
 def test_raw_job_posting_allows_unknown_location() -> None:
@@ -84,7 +87,7 @@ def test_raw_job_posting_allows_unknown_location() -> None:
     )
 
     assert posting.location is None
-    assert posting.posted_at is None
+    assert posting.updated_at is None
 
 
 def test_raw_job_posting_requires_external_id() -> None:

@@ -32,7 +32,7 @@ Canonical Job Conversion
     ↓
 Existing Processing Pipeline
 
-The Greenhouse implementation currently reaches the `RawJobPosting` stage. Canonical conversion and pipeline integration are the next steps.
+The Greenhouse implementation currently reaches the canonical `JobPosting` stage. Persistence and processing-pipeline integration are the next steps.
 
 ---
 
@@ -496,7 +496,7 @@ This keeps the application entry point easy to understand and prevents it from b
 
 ## Testing
 
-Test Count: 203
+Test Count: 213
 
 The project currently uses `pytest`.
 
@@ -537,6 +537,12 @@ Existing tests cover:
 - Greenhouse payload conversion
 - Disabled and incompatible source handling
 - Greenhouse payload-error handling
+- Raw-to-canonical job conversion
+- HTML job-description normalization
+- Nested HTML-entity decoding
+- Publication-timestamp parsing
+- Separation of publication and update timestamps
+- Rejection of invalid timestamps and blank descriptions
 
 Tests are added before major features are integrated into the live pipeline.
 
@@ -558,7 +564,7 @@ Planned test coverage includes:
 The current version has several known limitations:
 
 - The existing processing pipeline currently uses only the Remotive collector.
-- The Greenhouse source has been verified independently but is not yet connected to canonical job conversion, persistence, or matching.
+- Greenhouse jobs can be converted into canonical `JobPosting` objects but are not yet connected to persistence, filtering, or matching.
 - Location, relocation, and work-authorization preferences are still supplied in `main.py`.
 - Target-role inference currently uses deterministic keyword rules.
 - The original rule matcher still relies primarily on exact term matching.
@@ -819,6 +825,63 @@ The source:
 - Preserves the official application URL
 - Converts provider failures into job-source domain errors
 
-The integration was manually verified against Datadog's public Greenhouse board and collected 415 published postings.
+The integration was manually verified against Datadog's public Greenhouse board.
 
-Greenhouse currently supplies `updated_at` through the job-list endpoint. This value is temporarily stored in `RawJobPosting.posted_at`. Canonical job conversion will later distinguish publication, update, discovery, and collection timestamps.
+The first collection check retrieved 415 published postings. A later conversion check retrieved 414 postings, reflecting normal changes to the live job board.
+
+`RawJobPosting` distinguishes between:
+
+- `published_at`
+- `updated_at`
+
+Greenhouse supplies `updated_at` through its job-list endpoint but does not supply a verified original publication timestamp. The Greenhouse source therefore leaves `published_at` empty rather than treating an update timestamp as a publication date.
+
+### Canonical Job Conversion
+
+The `JobPostingConverter` transforms provider-neutral raw postings into the canonical `JobPosting` model used by filtering, matching, and persistence.
+
+RawJobPosting
+    ↓
+Description Normalization
+    ↓
+Publication Timestamp Parsing
+    ↓
+Pydantic Validation
+    ↓
+JobPosting
+
+The converter:
+
+- Maps the provider's external identifier to the canonical requisition ID
+- Preserves the company, title, location, and application URL
+- Converts verified publication timestamps into dates
+- Leaves `date_posted` empty when an original publication date is unavailable
+- Converts HTML job descriptions into normalized plain text
+- Rejects blank normalized descriptions
+- Rejects invalid publication timestamps
+- Converts Pydantic validation failures into job-source conversion errors
+
+The converter does not treat provider update timestamps as publication dates.
+
+### Job Description Normalization
+
+Job-description cleanup is implemented as a provider-neutral processing utility.
+
+The normalizer:
+
+- Decodes HTML entities
+- Handles nested HTML encoding
+- Removes HTML tags
+- Preserves paragraph and list boundaries as line breaks
+- Collapses repeated whitespace
+- Removes blank lines
+
+This normalization prevents HTML markup from interfering with requirement extraction and deterministic matching.
+
+### Live Conversion Validation
+
+The complete collection and conversion path was tested against Datadog's public Greenhouse board.
+
+The validation converted all 414 collected raw postings into canonical `JobPosting` objects without errors.
+
+As expected, zero postings received an original publication date because the Greenhouse list response supplied update timestamps rather than verified publication timestamps.

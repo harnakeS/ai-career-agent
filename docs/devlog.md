@@ -337,3 +337,64 @@ The collected postings included:
 - Separate publication, update, discovery, and collection timestamps.
 - Normalize HTML job descriptions before persistence and matching.
 - Integrate selected-company sources with the existing processing pipeline.
+
+
+---
+
+## 2026-07-20 - Canonical Job Posting Conversion
+
+### Implemented
+
+- Separated raw publication and update timestamps.
+- Updated the Greenhouse source to store `updated_at` correctly.
+- Prevented Greenhouse update timestamps from being treated as publication dates.
+- Added provider-neutral HTML job-description normalization.
+- Added support for decoding nested HTML entities.
+- Preserved paragraph and list boundaries during description cleanup.
+- Added the `JobPostingConverter`.
+- Added deterministic ISO publication-timestamp parsing.
+- Added raw-to-canonical field mapping.
+- Added explicit conversion errors for invalid timestamps, blank descriptions, and canonical validation failures.
+- Updated the live Greenhouse integration script to convert every collected posting.
+- Increased the automated test suite to 213 passing tests.
+
+### Live Integration Result
+
+The Greenhouse source collected 414 raw postings from Datadog's public job board.
+
+All 414 raw postings were successfully converted into canonical `JobPosting` objects.
+
+The converted postings contained:
+
+- Canonical requisition identifiers
+- Company names
+- Job titles
+- Locations
+- Normalized plain-text descriptions
+- Official application URLs
+- Verified publication dates when available
+
+Zero Datadog postings received an original publication date because the Greenhouse job-list response supplied `updated_at` rather than `published_at`.
+
+The change from 415 postings during the previous check to 414 postings during this check reflects normal changes to the live job board.
+
+### Architectural Decisions
+
+- Publication and update timestamps represent different facts and must not be substituted for one another.
+- Raw provider timestamps remain strings until canonical conversion.
+- Canonical timestamp parsing is deterministic.
+- Description normalization is provider-neutral and reusable across future sources.
+- Invalid raw data is rejected before reaching persistence or matching.
+- Live provider validation remains separate from deterministic unit tests.
+
+### Validation
+
+- Converted 414 of 414 live Datadog postings.
+- Completed 213 automated tests successfully.
+
+### Next
+
+- Add a job-source registry.
+- Select provider implementations through company configuration.
+- Build a multi-company collection service.
+- Connect canonical Greenhouse postings to persistence without duplicating existing jobs.

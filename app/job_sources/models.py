@@ -36,6 +36,7 @@ class RawJobPosting(BaseModel):
     location: str | None = None
     description: str
     application_url: HttpUrl
-    posted_at: str | None = None
+    published_at: str | None = None
+    updated_at: str | None = None
     source_provider: JobSourceProvider
     source_identifier: str

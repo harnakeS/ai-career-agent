@@ -108,7 +108,7 @@ def test_collect_maps_greenhouse_job_to_raw_posting() -> None:
         posting.description
         == "Build and maintain software systems."
     )
-    assert posting.posted_at == "2026-07-20T12:00:00Z"
+    assert posting.updated_at == "2026-07-20T12:00:00Z"
     assert (
         posting.source_provider
         == JobSourceProvider.GREENHOUSE

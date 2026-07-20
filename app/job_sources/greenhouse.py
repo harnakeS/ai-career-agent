@@ -90,7 +90,7 @@ class GreenhouseJobSource:
         title = job.get("title")
         application_url = job.get("absolute_url")
         description = job.get("content", "")
-        posted_at = job.get("updated_at")
+        updated_at = job.get("updated_at")
         location = self._extract_location(job)
 
         if external_id is None:
@@ -119,7 +119,7 @@ class GreenhouseJobSource:
                 "Greenhouse job 'content' must be text."
             )
 
-        if posted_at is not None and not isinstance(posted_at, str):
+        if updated_at is not None and not isinstance(updated_at, str):
             raise JobSourcePayloadError(
                 "Greenhouse job 'updated_at' must be text or null."
             )
@@ -132,7 +132,7 @@ class GreenhouseJobSource:
                 location=location,
                 description=description,
                 application_url=application_url,
-                posted_at=posted_at,
+                updated_at=updated_at,
                 source_provider=JobSourceProvider.GREENHOUSE,
                 source_identifier=source.source_identifier,
             )

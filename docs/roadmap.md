@@ -166,12 +166,12 @@ Monitor the companies I actually want to work for.
 - [x] Greenhouse job source
 - [x] Greenhouse payload validation
 - [x] Live Greenhouse integration verification
+- [x] Canonical raw-job conversion
+- [x] Timestamp parsing and normalization
+- [x] HTML description normalization
 
 ### Planned
 
-- [ ] Canonical raw-job conversion
-- [ ] Timestamp parsing and normalization
-- [ ] HTML description normalization
 - [ ] Job-source registry
 - [ ] Multi-source execution
 - [ ] Greenhouse pipeline integration
