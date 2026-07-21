@@ -162,6 +162,20 @@ def test_collects_multiple_companies_using_same_provider() -> None:
         second_company,
     ]
 
+    assert len(result.snapshots) == 2
+
+    assert result.snapshots[0].source == first_company
+    assert [
+        job.requisition_id
+        for job in result.snapshots[0].jobs
+    ] == ["111"]
+
+    assert result.snapshots[1].source == second_company
+    assert [
+        job.requisition_id
+        for job in result.snapshots[1].jobs
+    ] == ["222"]
+
 
 def test_resolves_different_provider_implementations() -> None:
     greenhouse_company = create_company_source(
@@ -353,6 +367,9 @@ def test_empty_source_is_successful_collection() -> None:
     assert result.jobs == []
     assert result.successful_sources == [company]
     assert result.failures == []
+    assert len(result.snapshots) == 1
+    assert result.snapshots[0].source == company
+    assert result.snapshots[0].jobs == []
 
 
 def test_collecting_no_sources_returns_empty_result() -> None:

@@ -21,12 +21,16 @@ class CompanyCollectionFailure(BaseModel):
     error_type: str
     message: str
 
+class CompanyJobSnapshot(BaseModel):
+    """Complete canonical job snapshot for one company source."""
+
+    source: CompanySource
+    jobs: list[JobPosting] = Field(default_factory=list)
 
 class CompanyCollectionResult(BaseModel):
     """Combined result of collecting multiple company sources."""
 
-    jobs: list[JobPosting] = Field(default_factory=list)
-    successful_sources: list[CompanySource] = Field(
+    snapshots: list[CompanyJobSnapshot] = Field(
         default_factory=list
     )
     skipped_sources: list[CompanySource] = Field(
@@ -35,6 +39,27 @@ class CompanyCollectionResult(BaseModel):
     failures: list[CompanyCollectionFailure] = Field(
         default_factory=list
     )
+
+    @property
+    def jobs(self) -> list[JobPosting]:
+        """Return canonical jobs from all successful snapshots."""
+
+        return [
+            job
+            for snapshot in self.snapshots
+            for job in snapshot.jobs
+        ]
+
+    @property
+    def successful_sources(
+        self,
+    ) -> list[CompanySource]:
+        """Return sources that produced successful snapshots."""
+
+        return [
+            snapshot.source
+            for snapshot in self.snapshots
+        ]
 
 
 class CompanyJobCollectionService:
@@ -84,7 +109,11 @@ class CompanyJobCollectionService:
                 )
                 continue
 
-            result.jobs.extend(converted_jobs)
-            result.successful_sources.append(source)
+            result.snapshots.append(
+                CompanyJobSnapshot(
+                    source=source,
+                    jobs=converted_jobs,
+                )
+            )
 
         return result

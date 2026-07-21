@@ -8,9 +8,12 @@ from app.models.job import JobPosting
 
 
 class JobRepository:
-    """Handles database operations for job postings."""
+    """Handle database operations for job postings."""
 
-    def __init__(self, session: Session) -> None:
+    def __init__(
+        self,
+        session: Session,
+    ) -> None:
         self.session = session
 
     def get_by_requisition(
@@ -25,15 +28,18 @@ class JobRepository:
 
         return self.session.scalar(statement)
 
-    def save_or_update(self, job: JobPosting) -> tuple[JobRecord, bool]:
+    def save_or_update(
+        self,
+        job: JobPosting,
+    ) -> tuple[JobRecord, bool]:
         """
-        Insert a new job or update an existing job.
+        Prepare an insert or update for a canonical job posting.
 
-        Returns:
-            A tuple containing:
-            - the saved database record
-            - True if the job was newly inserted, otherwise False
+        Returns the affected database record and whether it was newly
+        created. The caller owns the transaction and must commit or
+        roll back the session.
         """
+
         existing_job = self.get_by_requisition(
             company=job.company,
             requisition_id=job.requisition_id,
@@ -45,13 +51,14 @@ class JobRepository:
             existing_job.title = job.title
             existing_job.location = job.location
             existing_job.description = job.description
-            existing_job.application_url = str(job.application_url)
+            existing_job.application_url = str(
+                job.application_url
+            )
             existing_job.date_posted = job.date_posted
             existing_job.last_seen = current_time
             existing_job.is_active = True
 
-            self.session.commit()
-            self.session.refresh(existing_job)
+            self.session.flush()
 
             return existing_job, False
 
@@ -70,7 +77,6 @@ class JobRepository:
         )
 
         self.session.add(new_job)
-        self.session.commit()
-        self.session.refresh(new_job)
+        self.session.flush()
 
         return new_job, True

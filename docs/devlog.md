@@ -458,3 +458,70 @@ All collected postings passed canonical conversion.
 - Preserve duplicate detection through the existing repository.
 - Produce a structured persistence summary for each collection run.
 - Verify that running the same Greenhouse collection twice does not create duplicate database rows.
+
+
+---
+
+## 2026-07-21 - Transactional Company Job Persistence
+
+### Implemented
+
+- Refactored `JobRepository` so callers control commit and rollback behavior.
+- Replaced per-job commits with transaction-safe session flushing.
+- Added repository tests for insertion, updates, duplicate prevention, reactivation, discovery-time preservation, and rollback.
+- Added `CompanyJobSnapshot`.
+- Preserved the relationship between each company source and its canonical jobs.
+- Added compatibility views for combined jobs and successful sources.
+- Added `CompanyPersistenceSummary`.
+- Added `CompanyPersistenceFailure`.
+- Added `CompanyPersistenceResult`.
+- Added `CompanyJobPersistenceService`.
+- Added one database transaction per company snapshot.
+- Added expected database-failure isolation.
+- Added rollback behavior for unexpected programming errors.
+- Added structured new-job and updated-job counts.
+- Updated the live Greenhouse check to verify persistence in a temporary database.
+- Increased the automated test suite to 242 passing tests.
+
+### Live Integration Result
+
+The complete Greenhouse collection, conversion, and persistence path was tested against Datadog's public job board.
+
+The live run collected 420 canonical postings.
+
+The first persistence pass reported:
+
+- 420 new jobs
+- Zero updated jobs
+- 420 database rows
+
+The second persistence pass reported:
+
+- Zero new jobs
+- 420 updated jobs
+- 420 database rows
+
+The unchanged database row count verified duplicate prevention.
+
+### Architectural Decisions
+
+- Collection results preserve company-level job snapshots.
+- Empty successful snapshots remain distinct from collection failures.
+- Repositories prepare database changes but do not own transaction boundaries.
+- Each company snapshot is persisted atomically.
+- A database failure for one company does not roll back previously committed companies.
+- Unexpected persistence errors are rolled back and re-raised.
+- Live persistence validation uses an in-memory database and does not modify development data.
+
+### Validation
+
+- Verified duplicate prevention against 420 live postings.
+- Verified insert and update counts across repeated persistence passes.
+- Completed 242 automated tests successfully.
+
+### Next
+
+- Connect collection and persistence through a scheduled application pipeline.
+- Load selected companies from configuration rather than command-line arguments.
+- Add persistence summaries to the pipeline output.
+- Add safe closed-job detection using only successful company snapshots.

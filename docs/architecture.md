@@ -141,8 +141,9 @@ The Remotive collector returns canonical `JobPosting` objects and is integrated 
 
 The Greenhouse source returns provider-neutral `RawJobPosting` objects. The selected-company collection service converts them into canonical `JobPosting` objects.
 
-The Greenhouse orchestration path has been verified against a live public job board but is not yet connected to persistence, filtering, or matching.
+The Greenhouse orchestration path has been verified against a live public job board and temporary database persistence.
 
+It is not yet connected to the application's scheduled pipeline, filtering, or matching workflow.
 #### Planned Integrations
 
 - Lever
@@ -466,6 +467,10 @@ It currently supports:
 
 The repository returns whether a job was newly created or updated.
 
+The repository flushes pending changes but does not commit transactions.
+
+Transaction ownership belongs to the calling pipeline or persistence service. This allows multiple job changes to be committed or rolled back as one logical operation.
+
 This lets the pipeline track new and existing jobs without containing SQLAlchemy-specific query logic.
 
 Future repository methods may include:
@@ -498,7 +503,7 @@ This keeps the application entry point easy to understand and prevents it from b
 
 ## Testing
 
-Test Count: 231
+Test Count: 242
 
 The project currently uses `pytest`.
 
@@ -555,12 +560,20 @@ Existing tests cover:
 - Per-company failure isolation
 - Atomic company-snapshot conversion
 - Propagation of unexpected implementation errors
+- Repository insertion and update behavior
+- Repository duplicate prevention
+- Existing-job reactivation
+- Original discovery-time preservation
+- Caller-controlled transaction rollback
+- Transactional company persistence
+- Per-company database rollback
+- Isolation of persistence failures
+- Repeated-snapshot duplicate prevention
 
 Tests are added before major features are integrated into the live pipeline.
 
 Planned test coverage includes:
 
-- Repository insert and update behavior
 - Database constraints
 - Collector response parsing
 - Closed-job detection
@@ -576,7 +589,7 @@ Planned test coverage includes:
 The current version has several known limitations:
 
 - The existing processing pipeline currently uses only the Remotive collector.
-- The selected-company service can collect and convert Greenhouse jobs but is not yet connected to persistence, filtering, or matching.
+- The selected-company services can collect, convert, and persist Greenhouse jobs but are not yet connected to the scheduled pipeline, filtering, or matching.
 - Location, relocation, and work-authorization preferences are still supplied in `main.py`.
 - Target-role inference currently uses deterministic keyword rules.
 - The original rule matcher still relies primarily on exact term matching.
@@ -962,10 +975,16 @@ The service:
 
 `CompanyCollectionResult` contains:
 
-- Canonical jobs
-- Successful company sources
+- Successful company job snapshots
 - Skipped company sources
 - Structured collection failures
+
+Each `CompanyJobSnapshot` preserves:
+
+- The exact company-source configuration
+- The complete list of canonical jobs returned for that source
+
+The result also provides combined views of all canonical jobs and all successful company sources.
 
 Each `CompanyCollectionFailure` records:
 
@@ -1021,3 +1040,94 @@ The validation reported:
 - Zero company failures
 - 415 canonical postings
 - Zero original publication dates, as expected from the available Greenhouse fields
+
+
+---
+
+## Transactional Company Persistence
+
+The `CompanyJobPersistenceService` persists successful company snapshots through the existing `JobRepository`.
+
+CompanyCollectionResult
+    ↓
+CompanyJobSnapshot
+    ↓
+JobRepository
+    ↓
+Company-Level Transaction
+    ↓
+Commit or Rollback
+
+Each company snapshot receives an independent transaction.
+
+The service:
+
+- Persists newly discovered jobs
+- Updates previously seen jobs
+- Preserves the original discovery timestamp
+- Reactivates jobs that reappear
+- Prevents duplicate rows
+- Commits successful company snapshots
+- Rolls back failed company snapshots
+- Records structured persistence summaries
+- Records expected database failures
+- Allows other company snapshots to continue after an expected failure
+
+### Repository Transaction Ownership
+
+`JobRepository.save_or_update()` does not commit its own transaction.
+
+It flushes pending changes so generated identifiers and database constraints are available while leaving the transaction under caller control.
+
+This allows a persistence service to treat all jobs from one company source as a single atomic operation.
+
+The existing `JobPipeline` continues to commit after calculating and assigning a match score.
+
+### Persistence Results
+
+`CompanyPersistenceResult` contains:
+
+- Successful company persistence summaries
+- Structured company persistence failures
+- Total newly inserted jobs
+- Total updated jobs
+
+Each `CompanyPersistenceSummary` records:
+
+- Company source
+- Number of new jobs
+- Number of updated jobs
+
+Each `CompanyPersistenceFailure` records:
+
+- Company source
+- Database error type
+- Error message
+
+### Transaction Isolation
+
+If one job in a company snapshot fails to persist, every pending change from that company snapshot is rolled back.
+
+Previously committed companies remain stored, and later company snapshots may continue processing.
+
+Unexpected programming errors trigger a rollback and are re-raised rather than converted into ordinary persistence failures.
+
+### Live Persistence Validation
+
+The full Greenhouse collection and persistence path was tested against Datadog's public job board using a temporary in-memory SQLite database.
+
+The live run collected 420 canonical postings.
+
+The first persistence pass produced:
+
+- 420 new jobs
+- Zero updated jobs
+- 420 database rows
+
+The second persistence pass produced:
+
+- Zero new jobs
+- 420 updated jobs
+- 420 database rows
+
+The unchanged row count verified that repeated collection runs update existing records without creating duplicates.

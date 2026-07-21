@@ -171,6 +171,11 @@ Monitor the companies I actually want to work for.
 - [x] HTML description normalization
 - [x] Job-source registry
 - [x] Multi-source execution
+- [x] Company-level job snapshots
+- [x] Caller-controlled repository transactions
+- [x] Transactional company persistence
+- [x] Persistence failure isolation
+- [x] Duplicate persistence verification
 
 ### Planned
 
