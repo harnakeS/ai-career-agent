@@ -658,3 +658,74 @@ The result confirmed that the existing 421 postings remained active and that rec
 - Add a manual selected-company scan action.
 - Display structured scan results and failures.
 - Display a read-only table of active jobs.
+
+---
+
+## 2026-07-21 - First Streamlit Dashboard
+
+### Implemented
+
+- Added the first Streamlit dashboard.
+- Added selected-company configuration display.
+- Added configured and enabled company metrics.
+- Added a manual selected-company scan action.
+- Added structured collection and persistence summaries.
+- Added collection and persistence failure reporting.
+- Added a read-only stored-job table.
+- Added title, company, and location search.
+- Added company filtering.
+- Added active and inactive job visibility.
+- Added direct links to official job postings.
+- Added a selected-company default view.
+- Added deterministic dashboard view-model conversion and filtering.
+- Added five dashboard view-model tests.
+- Increased the automated test suite to 265 passing tests.
+
+### Live Application Result
+
+The dashboard was run against the existing local database and live Datadog configuration.
+
+The interface successfully:
+
+- displayed the selected company
+- displayed stored job postings
+- ran the selected-company scan
+- displayed scan results
+- searched job postings
+- filtered jobs by company
+- toggled inactive-job visibility
+- opened official job links
+
+The database currently contains no inactive postings, so enabling inactive-job visibility correctly leaves the displayed count unchanged and shows an informational message.
+
+### Runtime Compatibility
+
+The original Anaconda-based environment caused Streamlit to terminate with exit code 139 during widget reruns.
+
+The project environment was rebuilt with standalone CPython 3.12. Compatible NumPy, Pandas, PyArrow, Streamlit, and Tornado versions were pinned in `requirements.txt`.
+
+After rebuilding the environment, all dashboard interactions completed without crashes.
+
+### Architectural Decisions
+
+- The dashboard reads jobs through `JobRepository`.
+- Presentation conversion and filtering remain outside Streamlit rendering code.
+- Dashboard view-model behavior is deterministic and independently tested.
+- The command-line and dashboard entry points share the selected-company pipeline.
+- Local database state remains outside version control.
+- The first dashboard remains intentionally read-only except for initiating scans.
+
+### Validation
+
+- Completed 265 automated tests successfully.
+- Verified all current dashboard interactions manually.
+- Verified selected-company scanning through the dashboard.
+- Verified active and inactive display behavior.
+- Verified official application links.
+
+### Next
+
+- Add a job-detail view.
+- Connect candidate evidence matching to persisted selected-company jobs.
+- Display match scores, strengths, gaps, and supporting resume evidence.
+- Add additional selected companies through reusable ATS integrations.

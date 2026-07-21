@@ -216,3 +216,10 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+.venv-anaconda-backup/
+
+# Local application state
+data/jobs.db
+
+# Preserved development environments
+.venv-anaconda-backup/

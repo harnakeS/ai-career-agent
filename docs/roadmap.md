@@ -235,13 +235,27 @@ Automatically notify me when a worthwhile opportunity appears.
 
 Provide a single interface for managing my job search.
 
+### Completed
+
+- [x] Create the Streamlit dashboard shell
+- [x] Display configured companies
+- [x] Display enabled company status
+- [x] Run selected-company scans manually
+- [x] Display structured scan summaries
+- [x] Display collection and persistence failures
+- [x] Display stored jobs
+- [x] Search jobs
+- [x] Filter by company
+- [x] Display active and inactive jobs
+- [x] Link to official job postings
+- [x] Default the job view to selected companies
+
 ### Planned
 
-- [ ] Streamlit dashboard
-- [ ] Search jobs
-- [ ] Sort by score
-- [ ] Filter by company
+- [ ] Display job details
+- [ ] Sort by match score
 - [ ] Filter by location
+- [ ] Display matched requirements and resume evidence
 - [ ] Saved jobs
 - [ ] Application tracker
 - [ ] Job analytics

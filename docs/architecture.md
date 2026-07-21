@@ -526,9 +526,25 @@ This keeps the application entry point easy to understand and prevents it from b
 
 ---
 
+## Streamlit Dashboard
+
+The first user-facing interface is implemented with Streamlit.
+
+Company Source Configuration
+            ↓
+SelectedCompanyPipeline
+            ↓
+JobRepository
+            ↓
+Dashboard View Models
+            ↓
+Streamlit Dashboard
+
+---
+
 ## Testing
 
-Test Count: 260
+Test Count: 265
 
 The project currently uses `pytest`.
 
@@ -606,6 +622,11 @@ Existing tests cover:
 - Company-isolated deactivation
 - Transactional deactivation rollback
 - Pipeline-level deactivation reporting
+- Dashboard job-row conversion
+- Company-source display conversion
+- Dashboard text-search filtering
+- Dashboard company filtering
+- Dashboard missing-value presentation
 
 Tests are added before major features are integrated into the live pipeline.
 
@@ -633,8 +654,11 @@ The current version has several known limitations:
 - The new evidence matcher supports canonical vocabulary resolution but is not yet integrated into final job scoring.
 - Only jobs that pass eligibility filtering receive match scores.
 - Jobs that are skipped do not yet store an eligibility reason.
-- The application does not yet detect closed postings.
-- There are no alerts or dashboard.
+- Closed postings are detected only after a successful selected-company snapshot.
+- The dashboard is currently a local, single-user interface.
+- Saved jobs and application tracking are not yet implemented.
+- Match results are not yet displayed in the dashboard.
+- Selected-company scans are manually initiated and are not yet scheduled.
 - Match scores are not yet category weighted.
 - Semantic similarity is not yet implemented.
 - LLM-based recommendations are not yet implemented.

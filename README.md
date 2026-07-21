@@ -1,19 +1,36 @@
-# An AI-powered career agent that continuously monitors software engineering opportunities, ranks them using a hybrid matching engine, and recommends the highest-value applications based on a structured candidate profile.
+# AI Job Scout
+
+AI Job Scout monitors selected company career sites, stores active job postings, and provides a foundation for evidence-based job matching, application tracking, resume tailoring, and cover-letter generation.
 
 ## Current Status
 
-The personal-use backend can currently:
+The application currently supports:
 
-- Collect live job postings
-- Normalize jobs into a shared model
-- Store and update postings without duplicates
-- Parse a PDF resume into structured skills, education, experience, and project data
-- Distinguish internship experience from full-time experience
-- Generate a candidate profile directly from the resume
-- Load personal job-search preferences from JSON
-- Score jobs using a deterministic matching engine
-- Structured, LLM-ready job requirement extraction with validated output and explainable deterministic scoring
+- Resume parsing into structured candidate data
+- Structured job-requirement extraction
+- Deterministic and vocabulary-aware evidence matching
+- Selected-company configuration
+- Greenhouse job collection
+- Job normalization and validation
+- SQLite persistence and duplicate prevention
+- Active and inactive posting reconciliation
+- Transactional per-company updates
+- A Streamlit dashboard
+- Manual selected-company scans
+- Job search and company filtering
+- Active and inactive job visibility
+- Direct links to official job postings
 
-The automated test suite currently contains 94 passing tests.
+The current selected-company configuration monitors Datadog as the first live Greenhouse integration. The architecture is designed to expand to ten selected companies through reusable ATS providers.
 
-The next development phase focuses on richer experience, education, certification, and work-authorization scoring before adding more company collectors.
+The automated test suite currently contains 265 passing tests.
+
+## Local Setup
+
+Use standalone CPython 3.12. The project’s pinned package versions avoid a native-library conflict encountered when Streamlit was run through an Anaconda-based environment on macOS.
+
+Create and activate the environment:
+
+```bash
+python3.12 -m venv .venv
+source .venv/bin/activate
