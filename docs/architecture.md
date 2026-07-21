@@ -503,7 +503,7 @@ This keeps the application entry point easy to understand and prevents it from b
 
 ## Testing
 
-Test Count: 242
+Test Count: 254
 
 The project currently uses `pytest`.
 
@@ -569,6 +569,12 @@ Existing tests cover:
 - Per-company database rollback
 - Isolation of persistence failures
 - Repeated-snapshot duplicate prevention
+- Company-source configuration validation
+- Invalid and duplicate source rejection
+- Selected-company pipeline coordination
+- Multi-company pipeline execution
+- Pipeline duplicate prevention
+- Disabled and unregistered source reporting
 
 Tests are added before major features are integrated into the live pipeline.
 
@@ -589,7 +595,8 @@ Planned test coverage includes:
 The current version has several known limitations:
 
 - The existing processing pipeline currently uses only the Remotive collector.
-- The selected-company services can collect, convert, and persist Greenhouse jobs but are not yet connected to the scheduled pipeline, filtering, or matching.
+- The runnable selected-company pipeline can collect, convert, and persist Greenhouse jobs but does not yet apply filtering or matching.
+- Selected-company scans are manually initiated and are not yet scheduled.
 - Location, relocation, and work-authorization preferences are still supplied in `main.py`.
 - Target-role inference currently uses deterministic keyword rules.
 - The original rule matcher still relies primarily on exact term matching.
@@ -1131,3 +1138,120 @@ The second persistence pass produced:
 - 420 database rows
 
 The unchanged row count verified that repeated collection runs update existing records without creating duplicates.
+
+
+---
+
+## Selected-Company Application Pipeline
+
+The `SelectedCompanyPipeline` provides the application-facing boundary used by command-line and future frontend entry points.
+
+Company Source Configuration
+    ↓
+SelectedCompanyPipeline
+    ↓
+CompanyJobCollectionService
+    ↓
+CompanyJobPersistenceService
+    ↓
+SelectedCompanyRunResult
+
+The pipeline:
+
+- Accepts validated company sources
+- Runs multi-company collection
+- Persists successful company snapshots
+- Manages the database-session lifecycle
+- Preserves collection and persistence failures
+- Returns aggregate counts for the user interface
+
+### Run Results
+
+`SelectedCompanyRunResult` contains the complete collection and persistence results.
+
+It also provides frontend-friendly summary values:
+
+- Collected jobs
+- New jobs
+- Updated jobs
+- Successful collections
+- Skipped sources
+- Collection failures
+- Persistence failures
+
+The frontend does not need to directly create database sessions, repositories, collectors, converters, or provider registries.
+
+### Company-Source Configuration
+
+Selected companies are loaded from:
+
+config/company_sources.json
+
+The configuration contains:
+
+- Company name
+- Recruiting-platform provider
+- Provider-specific source identifier
+- Public careers URL
+- Enabled status
+
+Configuration is validated before collection begins.
+
+Duplicate combinations of provider and source identifier are rejected.
+
+The JSON configuration contains no credentials and may be committed to source control.
+
+### Application Composition
+
+Production dependencies are assembled in `app/composition.py`.
+
+The composition layer currently registers:
+
+- `GreenhouseJobSource`
+- `CompanyJobCollectionService`
+- `SessionLocal`
+- `SelectedCompanyPipeline`
+
+Command-line and frontend entry points can use the same composition function without duplicating dependency setup.
+
+### Command-Line Runner
+
+The selected-company pipeline can be run with:
+
+python -m scripts.run_selected_companies
+
+The runner:
+
+- Creates the database schema
+- Loads company-source configuration
+- Constructs production services
+- Executes the pipeline
+- Prints a structured summary
+- Prints collection and persistence failures
+- Returns a nonzero exit status when a company fails
+
+### Real Database Validation
+
+The runnable pipeline was tested twice against Datadog's public Greenhouse board and the local SQLite database.
+
+The first run reported:
+
+- 421 collected jobs
+- 421 new jobs
+- Zero updated jobs
+- Zero failures
+
+The second run reported:
+
+- 421 collected jobs
+- Zero new jobs
+- 421 updated jobs
+- Zero failures
+
+This verified duplicate prevention through the complete application pipeline.
+
+### Local Database Storage
+
+The SQLite database at `data/jobs.db` contains local application state and is excluded from version control.
+
+Database schema and behavior remain reproducible through SQLAlchemy models, database initialization, and automated tests.

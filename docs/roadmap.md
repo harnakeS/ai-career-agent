@@ -176,6 +176,11 @@ Monitor the companies I actually want to work for.
 - [x] Transactional company persistence
 - [x] Persistence failure isolation
 - [x] Duplicate persistence verification
+- [x] Validated company-source configuration
+- [x] Application composition
+- [x] Selected-company pipeline
+- [x] Real SQLite pipeline verification
+- [x] Command-line runner
 
 ### Planned
 

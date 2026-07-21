@@ -525,3 +525,73 @@ The unchanged database row count verified duplicate prevention.
 - Load selected companies from configuration rather than command-line arguments.
 - Add persistence summaries to the pipeline output.
 - Add safe closed-job detection using only successful company snapshots.
+
+
+---
+
+## 2026-07-21 - Configurable Selected-Company Pipeline
+
+### Implemented
+
+- Added `SelectedCompanyPipeline`.
+- Added `SelectedCompanyRunResult`.
+- Added one application-facing collection and persistence boundary.
+- Added pipeline-owned database-session management.
+- Added aggregate run-summary properties.
+- Added validated company-source configuration.
+- Added duplicate source-configuration detection.
+- Added configuration validation for providers, URLs, required fields, and enabled status.
+- Added `app/composition.py` for production dependency construction.
+- Added the real selected-company command-line runner.
+- Added project-root-relative configuration paths.
+- Added Datadog as the first verified configured company source.
+- Removed the local SQLite database from version control.
+- Increased the automated test suite to 254 passing tests.
+
+### Live Application Result
+
+The selected-company pipeline was run twice against Datadog's live Greenhouse board and the local application database.
+
+The first run reported:
+
+- One successful company source
+- 421 collected jobs
+- 421 new jobs
+- Zero updated jobs
+- Zero collection failures
+- Zero persistence failures
+
+The second run reported:
+
+- One successful company source
+- 421 collected jobs
+- Zero new jobs
+- 421 updated jobs
+- Zero collection failures
+- Zero persistence failures
+
+The second run verified duplicate prevention in the real local database.
+
+### Architectural Decisions
+
+- Company sources are editable data rather than hardcoded Python values.
+- Provider implementations are assembled in one composition module.
+- Command-line and frontend entry points will share the same pipeline.
+- The pipeline returns structured results instead of printing internally.
+- User-facing entry points decide how results are displayed.
+- The local database is application state and is not committed to Git.
+
+### Validation
+
+- Verified configuration loading against the real Datadog source.
+- Verified first-run insertion behavior.
+- Verified second-run update behavior.
+- Completed 254 automated tests successfully.
+
+### Next
+
+- Create the Streamlit application shell.
+- Display configured companies and their enabled status.
+- Add a button that runs `SelectedCompanyPipeline`.
+- Display run summaries and failures.
+- Add a read-only table of persisted jobs.

@@ -1,6 +1,12 @@
 from enum import Enum
 
-from pydantic import BaseModel, Field, HttpUrl
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    HttpUrl,
+    model_validator,
+)
 
 
 class JobSourceProvider(str, Enum):
@@ -16,12 +22,46 @@ class JobSourceProvider(str, Enum):
 
 class CompanySource(BaseModel):
     """Configuration describing where one company publishes jobs."""
+    model_config = ConfigDict(
+        str_strip_whitespace=True
+    )
 
     company_name: str = Field(min_length=1)
     provider: JobSourceProvider
     source_identifier: str = Field(min_length=1)
     careers_url: HttpUrl
     enabled: bool = True
+
+class CompanySourceConfiguration(BaseModel):
+    """Validated collection of selected company sources."""
+
+    sources: list[CompanySource] = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def validate_unique_sources(
+        self,
+    ) -> "CompanySourceConfiguration":
+        seen_sources: set[
+            tuple[JobSourceProvider, str]
+        ] = set()
+
+        for source in self.sources:
+            source_key = (
+                source.provider,
+                source.source_identifier.casefold(),
+            )
+
+            if source_key in seen_sources:
+                raise ValueError(
+                    "Company-source configuration contains "
+                    "a duplicate provider and source identifier: "
+                    f"'{source.provider.value}' and "
+                    f"'{source.source_identifier}'."
+                )
+
+            seen_sources.add(source_key)
+
+        return self
 
 
 class RawJobPosting(BaseModel):

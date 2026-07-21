@@ -1,0 +1,11 @@
+{
+    "sources": [
+      {
+        "company_name": "Datadog",
+        "provider": "greenhouse",
+        "source_identifier": "datadog",
+        "careers_url": "https://careers.datadoghq.com/",
+        "enabled": true
+      }
+    ]
+  }
