@@ -1,6 +1,7 @@
+from collections.abc import Collection
 from datetime import datetime, timezone
 
-from sqlalchemy import select
+from sqlalchemy import select, update
 from sqlalchemy.orm import Session
 
 from app.database.models import JobRecord
@@ -27,6 +28,66 @@ class JobRepository:
         )
 
         return self.session.scalar(statement)
+
+    def list_jobs(
+        self,
+        *,
+        active_only: bool = True,
+    ) -> list[JobRecord]:
+        """
+        Return stored jobs ordered by discovery time.
+
+        Inactive jobs are excluded by default because user-facing job
+        discovery should prioritize currently available postings.
+        """
+
+        statement = select(JobRecord)
+
+        if active_only:
+            statement = statement.where(
+                JobRecord.is_active.is_(True)
+            )
+
+        statement = statement.order_by(
+            JobRecord.date_discovered.desc(),
+            JobRecord.id.desc(),
+        )
+
+        return list(
+            self.session.scalars(statement).all()
+        )
+
+    def deactivate_missing(
+        self,
+        *,
+        company: str,
+        active_requisition_ids: Collection[str],
+    ) -> int:
+        """
+        Deactivate company jobs absent from a successful source snapshot.
+
+        This method only prepares the changes. The caller owns the
+        transaction and must commit or roll back the session.
+        """
+
+        statement = update(JobRecord).where(
+            JobRecord.company == company,
+            JobRecord.is_active.is_(True),
+        )
+
+        if active_requisition_ids:
+            statement = statement.where(
+                JobRecord.requisition_id.not_in(
+                    active_requisition_ids
+                )
+            )
+
+        result = self.session.execute(
+            statement.values(is_active=False)
+        )
+        self.session.flush()
+
+        return result.rowcount or 0
 
     def save_or_update(
         self,

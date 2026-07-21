@@ -20,19 +20,33 @@ The long-term goal is to support multiple company career platforms, semantic res
 
 ## Current Data Flow
 
-Selected-company monitoring is being developed through a separate provider-neutral source layer:
+Selected-company monitoring uses a provider-neutral collection and persistence pipeline:
 
-CompanySource
+Company Source Configuration
     ↓
 Provider-Specific JobSource
     ↓
 RawJobPosting
     ↓
-Canonical Job Conversion
+JobPostingConverter
     ↓
-Existing Processing Pipeline
+Canonical JobPosting
+    ↓
+CompanyJobPersistenceService
+    ↓
+Insert or Update Current Jobs
+    ↓
+Deactivate Missing Jobs
+    ↓
+SQLite Database
 
-The Greenhouse implementation currently reaches the canonical `JobPosting` stage. Persistence and processing-pipeline integration are the next steps.
+Only successful company snapshots can update or deactivate stored jobs.
+
+A collection failure does not produce a snapshot and therefore cannot incorrectly mark previously stored jobs inactive.
+
+The selected-company pipeline currently handles collection, canonical conversion, persistence, duplicate prevention, reactivation, and closed-job reconciliation.
+
+Candidate-specific filtering and matching will be integrated after the first dashboard workflow is operational.
 
 ---
 
@@ -141,9 +155,20 @@ The Remotive collector returns canonical `JobPosting` objects and is integrated 
 
 The Greenhouse source returns provider-neutral `RawJobPosting` objects. The selected-company collection service converts them into canonical `JobPosting` objects.
 
-The Greenhouse orchestration path has been verified against a live public job board and temporary database persistence.
+The Greenhouse source is connected to the runnable selected-company pipeline.
 
-It is not yet connected to the application's scheduled pipeline, filtering, or matching workflow.
+The integration supports:
+
+- Live job collection
+- Canonical job conversion
+- SQLite persistence
+- Duplicate prevention
+- Existing-job updates
+- Previously closed-job reactivation
+- Closed-job detection from successful snapshots
+- Structured run summaries
+
+Filtering and candidate-specific matching remain separate from the selected-company pipeline and will be integrated through the dashboard workflow.
 #### Planned Integrations
 
 - Lever
@@ -503,7 +528,7 @@ This keeps the application entry point easy to understand and prevents it from b
 
 ## Testing
 
-Test Count: 254
+Test Count: 260
 
 The project currently uses `pytest`.
 
@@ -575,6 +600,12 @@ Existing tests cover:
 - Multi-company pipeline execution
 - Pipeline duplicate prevention
 - Disabled and unregistered source reporting
+- Active-job repository queries
+- Optional inclusion of inactive jobs
+- Missing-job deactivation
+- Company-isolated deactivation
+- Transactional deactivation rollback
+- Pipeline-level deactivation reporting
 
 Tests are added before major features are integrated into the live pipeline.
 
@@ -582,7 +613,6 @@ Planned test coverage includes:
 
 - Database constraints
 - Collector response parsing
-- Closed-job detection
 - Multi-collector execution
 - Embedding scoring
 - LLM output validation
@@ -1255,3 +1285,39 @@ This verified duplicate prevention through the complete application pipeline.
 The SQLite database at `data/jobs.db` contains local application state and is excluded from version control.
 
 Database schema and behavior remain reproducible through SQLAlchemy models, database initialization, and automated tests.
+
+### Active-Job Reconciliation
+
+Each successful company collection produces a complete company snapshot.
+
+After current postings are inserted or updated, the repository compares the snapshot's requisition IDs against active jobs already stored for that company.
+
+Successful Company Snapshot
+    ↓
+Current Requisition IDs
+    ↓
+Insert or Update Current Jobs
+    ↓
+Find Previously Active Jobs Missing from Snapshot
+    ↓
+Mark Missing Jobs Inactive
+    ↓
+Commit Company Transaction
+
+The reconciliation process:
+
+- Keeps current postings active
+- Marks missing postings inactive
+- Reactivates postings that later reappear
+- Restricts deactivation to the matching company
+- Reports the number of deactivated jobs
+- Runs inside the same transaction as insertion and updates
+- Rolls back all company changes when persistence fails
+
+An empty successful snapshot deactivates all currently active jobs for that company.
+
+A failed collection does not produce a successful snapshot. Therefore, network failures, invalid provider payloads, and unsupported providers cannot cause stored jobs to be deactivated.
+
+The repository provides a read-only job-listing operation for frontend use.
+
+Active jobs are returned by default. Inactive jobs may be included explicitly for application history and debugging.

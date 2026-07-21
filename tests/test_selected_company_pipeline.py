@@ -159,6 +159,7 @@ def test_runs_collection_and_persistence(
     assert result.collection_failures == 0
     assert result.persistence_failures == 0
     assert count_records(session_factory) == 1
+    assert result.deactivated_jobs == 0
 
 
 def test_repeated_run_updates_without_duplicate(
@@ -283,3 +284,51 @@ def test_runs_multiple_company_sources(
     assert result.new_jobs == 2
     assert result.updated_jobs == 0
     assert count_records(session_factory) == 2
+
+def test_reports_jobs_removed_between_runs(
+    database: tuple[
+        Engine,
+        sessionmaker[Session],
+    ],
+) -> None:
+    _, session_factory = database
+    source = create_company_source()
+
+    postings = {
+        "example-company": [
+            create_raw_posting(
+                external_id="current"
+            ),
+            create_raw_posting(
+                external_id="removed"
+            ),
+        ]
+    }
+
+    pipeline = create_pipeline(
+        postings=postings,
+        session_factory=session_factory,
+    )
+
+    first_result = pipeline.run([source])
+
+    postings["example-company"] = [
+        create_raw_posting(
+            external_id="current"
+        )
+    ]
+
+    second_result = pipeline.run([source])
+
+    with session_factory() as session:
+        removed_record = session.scalar(
+            select(JobRecord).where(
+                JobRecord.company == "Example Company",
+                JobRecord.requisition_id == "removed",
+            )
+        )
+
+    assert first_result.deactivated_jobs == 0
+    assert second_result.deactivated_jobs == 1
+    assert removed_record is not None
+    assert removed_record.is_active is False

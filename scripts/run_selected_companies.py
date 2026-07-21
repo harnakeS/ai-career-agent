@@ -44,6 +44,10 @@ def print_run_summary(
         f"{result.updated_jobs}"
     )
     print(
+        f"Deactivated jobs       : "
+        f"{result.deactivated_jobs}"
+    )
+    print(
         f"Persistence failures   : "
         f"{result.persistence_failures}"
     )

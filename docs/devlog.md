@@ -595,3 +595,66 @@ The second run verified duplicate prevention in the real local database.
 - Add a button that runs `SelectedCompanyPipeline`.
 - Display run summaries and failures.
 - Add a read-only table of persisted jobs.
+
+---
+
+## 2026-07-21 - Active Job Reconciliation and Frontend Readiness
+
+### Implemented
+
+- Added read-only repository access for stored jobs.
+- Added active-only job retrieval by default.
+- Added optional retrieval of inactive jobs.
+- Added deterministic missing-job deactivation.
+- Scoped deactivation to the matching company.
+- Connected deactivation to successful company snapshots.
+- Added aggregate deactivation counts to persistence results.
+- Added deactivation counts to selected-company pipeline results.
+- Added deactivation counts to the command-line summary.
+- Added transactional rollback for deactivation failures.
+- Added the missing Ollama client dependency to `requirements.txt`.
+- Increased the automated test suite to 260 passing tests.
+
+### Live Application Result
+
+The selected-company pipeline was run against Datadog's live Greenhouse board and the existing local database.
+
+The run reported:
+
+- One successful company source
+- 421 collected jobs
+- Zero new jobs
+- 421 updated jobs
+- Zero deactivated jobs
+- Zero collection failures
+- Zero persistence failures
+
+The result confirmed that the existing 421 postings remained active and that reconciliation did not produce false deactivations.
+
+### Architectural Decisions
+
+- Only successful company snapshots may deactivate stored jobs.
+- Collection failures cannot change active-job status.
+- Job insertion, updates, and deactivation share one company-level transaction.
+- A failure during reconciliation rolls back all pending changes for that company.
+- Active jobs are returned by default for user-facing discovery.
+- Inactive jobs remain stored for history rather than being deleted.
+- Frontend entry points will read jobs through `JobRepository` rather than issuing direct database queries.
+
+### Validation
+
+- Verified active-only repository queries.
+- Verified optional inactive-job retrieval.
+- Verified company-isolated deactivation.
+- Verified transactional rollback after a deactivation failure.
+- Verified pipeline-level deactivation counts.
+- Completed 260 automated tests successfully.
+- Completed a live 421-job reconciliation without false deactivations.
+
+### Next
+
+- Create the Streamlit application shell.
+- Display configured companies and enabled status.
+- Add a manual selected-company scan action.
+- Display structured scan results and failures.
+- Display a read-only table of active jobs.

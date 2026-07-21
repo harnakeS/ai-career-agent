@@ -108,6 +108,7 @@ def test_persists_new_company_jobs(
     assert len(result.summaries) == 1
     assert result.failures == []
     assert count_records(session) == 2
+    assert result.deactivated_jobs == 0
 
 
 def test_repeated_snapshot_updates_without_duplicates(
@@ -166,6 +167,8 @@ def test_empty_company_snapshot_is_successful(
     assert result.summaries[0].source == source
     assert result.summaries[0].new_jobs == 0
     assert result.summaries[0].updated_jobs == 0
+    assert result.summaries[0].deactivated_jobs == 0
+    assert result.deactivated_jobs == 0
     assert result.failures == []
 
 
@@ -296,3 +299,105 @@ def test_collection_without_snapshots_changes_nothing(
     assert result.new_jobs == 0
     assert result.updated_jobs == 0
     assert count_records(session) == 0
+    assert result.deactivated_jobs == 0
+
+def test_deactivates_jobs_missing_from_successful_snapshot(
+    session: Session,
+) -> None:
+    service = CompanyJobPersistenceService(session)
+
+    service.persist(
+        create_collection_result(
+            jobs=[
+                create_job(requisition_id="current"),
+                create_job(requisition_id="removed"),
+            ]
+        )
+    )
+
+    result = service.persist(
+        create_collection_result(
+            jobs=[
+                create_job(requisition_id="current"),
+            ]
+        )
+    )
+
+    current_record = session.scalar(
+        select(JobRecord).where(
+            JobRecord.company == "Example Company",
+            JobRecord.requisition_id == "current",
+        )
+    )
+    removed_record = session.scalar(
+        select(JobRecord).where(
+            JobRecord.company == "Example Company",
+            JobRecord.requisition_id == "removed",
+        )
+    )
+
+    assert result.deactivated_jobs == 1
+    assert current_record is not None
+    assert current_record.is_active is True
+    assert removed_record is not None
+    assert removed_record.is_active is False
+
+
+def test_deactivation_failure_rolls_back_company_snapshot(
+    session: Session,
+) -> None:
+    class DeactivationFailureRepository(JobRepository):
+        def deactivate_missing(
+            self,
+            *,
+            company: str,
+            active_requisition_ids: set[str],
+        ) -> int:
+            super().deactivate_missing(
+                company=company,
+                active_requisition_ids=(
+                    active_requisition_ids
+                ),
+            )
+
+            raise SQLAlchemyError(
+                "Simulated deactivation failure."
+            )
+
+    normal_service = CompanyJobPersistenceService(session)
+
+    normal_service.persist(
+        create_collection_result(
+            jobs=[
+                create_job(requisition_id="existing"),
+            ]
+        )
+    )
+
+    failing_service = CompanyJobPersistenceService(
+        session=session,
+        repository_factory=(
+            DeactivationFailureRepository
+        ),
+    )
+
+    result = failing_service.persist(
+        create_collection_result(jobs=[])
+    )
+
+    session.expire_all()
+
+    existing_record = session.scalar(
+        select(JobRecord).where(
+            JobRecord.company == "Example Company",
+            JobRecord.requisition_id == "existing",
+        )
+    )
+
+    assert result.summaries == []
+    assert len(result.failures) == 1
+    assert result.failures[0].error_type == (
+        "SQLAlchemyError"
+    )
+    assert existing_record is not None
+    assert existing_record.is_active is True

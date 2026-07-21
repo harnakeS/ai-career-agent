@@ -181,15 +181,19 @@ Monitor the companies I actually want to work for.
 - [x] Selected-company pipeline
 - [x] Real SQLite pipeline verification
 - [x] Command-line runner
+- [x] Greenhouse pipeline integration
+- [x] Active-job repository queries
+- [x] Closed-job detection from successful snapshots
+- [x] Company-isolated job deactivation
+- [x] Transactional deactivation rollback
+- [x] Deactivation counts in pipeline results
 
 ### Planned
 
-- [ ] Greenhouse pipeline integration
 - [ ] Lever job source
 - [ ] Workday job source
 - [ ] Ashby job source
 - [ ] SmartRecruiters job source
-- [ ] Closed-job detection
 
 Target companies include:
 

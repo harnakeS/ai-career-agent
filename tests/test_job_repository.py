@@ -25,25 +25,28 @@ def session() -> Iterator[Session]:
 
 def create_job(
     *,
+    company: str = "Example Company",
+    requisition_id: str = "12345",
     title: str = "Software Engineer",
     description: str = "Build software systems.",
     location: str | None = "New York, NY",
     date_discovered: datetime | None = None,
 ) -> JobPosting:
     return JobPosting(
-        company="Example Company",
-        requisition_id="12345",
+        company=company,
+        requisition_id=requisition_id,
         title=title,
         location=location,
         description=description,
-        application_url="https://example.com/jobs/12345",
+        application_url=(
+            f"https://example.com/jobs/{requisition_id}"
+        ),
         date_posted=date(2026, 7, 20),
         date_discovered=(
             date_discovered
             or datetime.now(timezone.utc)
         ),
     )
-
 
 def test_inserts_new_job(
     session: Session,
@@ -170,3 +173,102 @@ def test_caller_can_roll_back_uncommitted_insert(
     )
 
     assert result is None
+
+def test_lists_active_jobs_by_default(
+    session: Session,
+) -> None:
+    repository = JobRepository(session)
+
+    active_record, _ = repository.save_or_update(
+        create_job(
+            requisition_id="active",
+            title="Active Job",
+        )
+    )
+    inactive_record, _ = repository.save_or_update(
+        create_job(
+            requisition_id="inactive",
+            title="Inactive Job",
+        )
+    )
+    inactive_record.is_active = False
+    session.commit()
+
+    result = repository.list_jobs()
+
+    assert result == [active_record]
+
+
+def test_list_jobs_can_include_inactive_jobs(
+    session: Session,
+) -> None:
+    repository = JobRepository(session)
+
+    repository.save_or_update(
+        create_job(requisition_id="active")
+    )
+    inactive_record, _ = repository.save_or_update(
+        create_job(requisition_id="inactive")
+    )
+    inactive_record.is_active = False
+    session.commit()
+
+    result = repository.list_jobs(
+        active_only=False
+    )
+
+    assert len(result) == 2
+    assert {
+        record.requisition_id
+        for record in result
+    } == {
+        "active",
+        "inactive",
+    }
+
+
+def test_deactivates_only_missing_company_jobs(
+    session: Session,
+) -> None:
+    repository = JobRepository(session)
+
+    repository.save_or_update(
+        create_job(requisition_id="current")
+    )
+    repository.save_or_update(
+        create_job(requisition_id="missing")
+    )
+    repository.save_or_update(
+        create_job(
+            company="Other Company",
+            requisition_id="other",
+        )
+    )
+    session.commit()
+
+    deactivated_count = repository.deactivate_missing(
+        company="Example Company",
+        active_requisition_ids={"current"},
+    )
+    session.commit()
+
+    current_record = repository.get_by_requisition(
+        company="Example Company",
+        requisition_id="current",
+    )
+    missing_record = repository.get_by_requisition(
+        company="Example Company",
+        requisition_id="missing",
+    )
+    other_record = repository.get_by_requisition(
+        company="Other Company",
+        requisition_id="other",
+    )
+
+    assert deactivated_count == 1
+    assert current_record is not None
+    assert current_record.is_active is True
+    assert missing_record is not None
+    assert missing_record.is_active is False
+    assert other_record is not None
+    assert other_record.is_active is True

@@ -23,6 +23,7 @@ class CompanyPersistenceSummary(BaseModel):
     source: CompanySource
     new_jobs: int = Field(ge=0)
     updated_jobs: int = Field(ge=0)
+    deactivated_jobs: int = Field(ge=0)
 
 
 class CompanyPersistenceFailure(BaseModel):
@@ -58,6 +59,15 @@ class CompanyPersistenceResult(BaseModel):
 
         return sum(
             summary.updated_jobs
+            for summary in self.summaries
+        )
+
+    @property
+    def deactivated_jobs(self) -> int:
+        """Return the total number of deactivated jobs."""
+
+        return sum(
+            summary.deactivated_jobs
             for summary in self.summaries
         )
 
@@ -97,6 +107,22 @@ class CompanyJobPersistenceService:
                     else:
                         updated_jobs += 1
 
+                active_requisition_ids = {
+                    job.requisition_id
+                    for job in snapshot.jobs
+                }
+
+                deactivated_jobs = (
+                    repository.deactivate_missing(
+                        company=(
+                            snapshot.source.company_name
+                        ),
+                        active_requisition_ids=(
+                            active_requisition_ids
+                        ),
+                    )
+                )
+
                 self._session.commit()
 
             except SQLAlchemyError as exc:
@@ -120,6 +146,7 @@ class CompanyJobPersistenceService:
                     source=snapshot.source,
                     new_jobs=new_jobs,
                     updated_jobs=updated_jobs,
+                    deactivated_jobs=deactivated_jobs,
                 )
             )
 

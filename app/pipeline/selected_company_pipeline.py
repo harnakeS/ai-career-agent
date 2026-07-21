@@ -36,6 +36,10 @@ class SelectedCompanyRunResult(BaseModel):
         return self.persistence.updated_jobs
 
     @property
+    def deactivated_jobs(self) -> int:
+        return self.persistence.deactivated_jobs
+
+    @property
     def successful_collections(self) -> int:
         return len(self.collection.snapshots)
 
