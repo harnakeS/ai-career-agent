@@ -13,6 +13,7 @@ from app.dashboard.view_models import (
     company_source_to_row,
     filter_job_rows,
     job_record_to_row,
+    job_record_to_detail,
 )
 from app.database.database import (
     SessionLocal,
@@ -58,6 +59,78 @@ def load_job_rows(
             job_record_to_row(record)
             for record in records
         ]
+
+def load_job_detail(
+    job_id: int,
+) -> dict[str, object] | None:
+    """Load one stored job and convert it before closing the session."""
+
+    with SessionLocal() as session:
+        repository = JobRepository(session)
+        record = repository.get_by_id(job_id)
+
+        if record is None:
+            return None
+
+        return job_record_to_detail(record)
+
+
+def display_job_detail(
+    detail: dict[str, object],
+) -> None:
+    """Display complete information for one selected job."""
+
+    st.divider()
+    st.subheader("Job Details")
+
+    st.markdown(
+        f"### {detail['Title']}"
+    )
+    st.caption(
+        f"{detail['Company']} · {detail['Location']}"
+    )
+
+    detail_columns = st.columns(4)
+
+    detail_columns[0].metric(
+        "Status",
+        detail["Status"],
+    )
+    detail_columns[1].metric(
+        "Posted",
+        detail["Posted"],
+    )
+    detail_columns[2].metric(
+        "Match Score",
+        (
+            detail["Match Score"]
+            if detail["Match Score"] is not None
+            else "Not scored"
+        ),
+    )
+    detail_columns[3].metric(
+        "Application Status",
+        detail["Application Status"],
+    )
+
+    st.write(
+        f"**Requisition ID:** "
+        f"{detail['Requisition ID']}"
+    )
+    st.write(
+        f"**Discovered:** {detail['Discovered']}"
+    )
+    st.write(
+        f"**Last seen:** {detail['Last Seen']}"
+    )
+
+    st.link_button(
+        "Open official application",
+        str(detail["Application URL"]),
+    )
+
+    st.markdown("#### Job Description")
+    st.markdown(str(detail["Description"]))
 
 
 def display_run_result(
@@ -240,11 +313,15 @@ def display_jobs(
         )
         return
 
-    st.dataframe(
+    table_event = st.dataframe(
         filtered_rows,
         hide_index=True,
         use_container_width=True,
+        on_select="rerun",
+        selection_mode="single-row",
+        key="job_opportunities_table",
         column_config={
+            "Job ID": None,
             "Match Score": st.column_config.NumberColumn(
                 "Match Score",
                 format="%.1f",
@@ -256,6 +333,28 @@ def display_jobs(
         },
     )
 
+    selected_rows = table_event.selection.rows
+
+    if not selected_rows:
+        st.caption(
+            "Select a row to view the complete job description."
+        )
+        return
+
+    selected_index = selected_rows[0]
+    selected_job_id = int(
+        filtered_rows[selected_index]["Job ID"]
+    )
+    detail = load_job_detail(selected_job_id)
+
+    if detail is None:
+        st.warning(
+            "The selected job could not be found. "
+            "Refresh the dashboard and try again."
+        )
+        return
+
+    display_job_detail(detail)
 
 def main() -> None:
     """Render the AI Job Scout dashboard."""

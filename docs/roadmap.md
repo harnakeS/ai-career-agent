@@ -249,10 +249,13 @@ Provide a single interface for managing my job search.
 - [x] Display active and inactive jobs
 - [x] Link to official job postings
 - [x] Default the job view to selected companies
+- [x] Display job details
+- [x] Select jobs from the stored-job table
+- [x] Display official application links in the detail view
+- [x] Display readable job-description formatting
 
 ### Planned
 
-- [ ] Display job details
 - [ ] Sort by match score
 - [ ] Filter by location
 - [ ] Display matched requirements and resume evidence

@@ -539,12 +539,14 @@ JobRepository
 Dashboard View Models
             ↓
 Streamlit Dashboard
+            ↓
+Job Table and Job Detail View
 
 ---
 
 ## Testing
 
-Test Count: 265
+Test Count: 272
 
 The project currently uses `pytest`.
 
@@ -627,6 +629,13 @@ Existing tests cover:
 - Dashboard text-search filtering
 - Dashboard company filtering
 - Dashboard missing-value presentation
+- Repository lookup by database identifier
+- Missing job-detail lookup behavior
+- Dashboard job-detail conversion
+- HTML heading and paragraph preservation
+- Unordered-list conversion
+- Ordered-list conversion
+- Safe emphasis and link conversion
 
 Tests are added before major features are integrated into the live pipeline.
 

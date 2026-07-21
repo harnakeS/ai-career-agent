@@ -6,6 +6,7 @@ from app.job_sources.models import CompanySource
 
 JobTableRow = dict[str, object]
 CompanyTableRow = dict[str, object]
+JobDetail = dict[str, object]
 
 
 def job_record_to_row(
@@ -14,6 +15,8 @@ def job_record_to_row(
     """Convert a stored job into frontend-friendly table data."""
 
     return {
+        "Job ID": record.id,
+        "Company": record.company,
         "Company": record.company,
         "Title": record.title,
         "Location": (
@@ -38,6 +41,44 @@ def job_record_to_row(
             or "Not applied"
         ),
         "Apply": record.application_url,
+    }
+
+def job_record_to_detail(
+    record: JobRecord,
+) -> JobDetail:
+    """Convert a stored job into a frontend-friendly detail view."""
+
+    return {
+        "Job ID": record.id,
+        "Company": record.company,
+        "Requisition ID": record.requisition_id,
+        "Title": record.title,
+        "Location": (
+            record.location or "Not specified"
+        ),
+        "Description": record.description,
+        "Posted": (
+            record.date_posted.isoformat()
+            if record.date_posted is not None
+            else "Unknown"
+        ),
+        "Discovered": (
+            record.date_discovered.date().isoformat()
+        ),
+        "Last Seen": (
+            record.last_seen.date().isoformat()
+        ),
+        "Status": (
+            "Active"
+            if record.is_active
+            else "Inactive"
+        ),
+        "Match Score": record.match_score,
+        "Application Status": (
+            record.application_status
+            or "Not applied"
+        ),
+        "Application URL": record.application_url,
     }
 
 

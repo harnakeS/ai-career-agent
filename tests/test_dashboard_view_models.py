@@ -4,6 +4,7 @@ from app.dashboard.view_models import (
     company_source_to_row,
     filter_job_rows,
     job_record_to_row,
+    job_record_to_detail,
 )
 from app.database.models import JobRecord
 from app.job_sources.models import (
@@ -59,13 +60,14 @@ def test_converts_active_job_record_to_table_row() -> None:
     row = job_record_to_row(
         create_job_record(
             match_score=87.5,
-            application_status="Saved",
+            application_status="Saved", 
         )
     )
 
     assert row == {
         "Company": "Example Company",
         "Title": "Software Engineer",
+        "Job ID": 1,
         "Location": "New York, NY",
         "Posted": "2026-07-20",
         "Discovered": "2026-07-20",
@@ -155,3 +157,29 @@ def test_empty_filters_return_all_jobs() -> None:
     result = filter_job_rows(rows)
 
     assert result == rows
+
+def test_converts_job_record_to_detail() -> None:
+    detail = job_record_to_detail(
+        create_job_record(
+            match_score=87.5,
+            application_status="Saved",
+        )
+    )
+
+    assert detail == {
+        "Job ID": 1,
+        "Company": "Example Company",
+        "Requisition ID": "12345",
+        "Title": "Software Engineer",
+        "Location": "New York, NY",
+        "Description": "Build software systems.",
+        "Posted": "2026-07-20",
+        "Discovered": "2026-07-20",
+        "Last Seen": "2026-07-21",
+        "Status": "Active",
+        "Match Score": 87.5,
+        "Application Status": "Saved",
+        "Application URL": (
+            "https://example.com/jobs/12345"
+        ),
+    }

@@ -29,6 +29,14 @@ class JobRepository:
 
         return self.session.scalar(statement)
 
+    def get_by_id(
+        self,
+        job_id: int,
+    ) -> JobRecord | None:
+        """Return one stored job by its database identifier."""
+
+        return self.session.get(JobRecord, job_id)
+
     def list_jobs(
         self,
         *,

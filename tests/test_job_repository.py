@@ -272,3 +272,29 @@ def test_deactivates_only_missing_company_jobs(
     assert missing_record.is_active is False
     assert other_record is not None
     assert other_record.is_active is True
+
+def test_gets_job_by_database_id(
+    session: Session,
+) -> None:
+    repository = JobRepository(session)
+
+    record, _ = repository.save_or_update(
+        create_job()
+    )
+    session.commit()
+
+    result = repository.get_by_id(record.id)
+
+    assert result is not None
+    assert result.id == record.id
+    assert result.requisition_id == "12345"
+
+
+def test_get_by_id_returns_none_for_unknown_job(
+    session: Session,
+) -> None:
+    repository = JobRepository(session)
+
+    result = repository.get_by_id(999)
+
+    assert result is None

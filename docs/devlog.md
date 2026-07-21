@@ -729,3 +729,66 @@ After rebuilding the environment, all dashboard interactions completed without c
 - Connect candidate evidence matching to persisted selected-company jobs.
 - Display match scores, strengths, gaps, and supporting resume evidence.
 - Add additional selected companies through reusable ATS integrations.
+
+---
+
+## 2026-07-21 - Selectable Job Details and Description Formatting
+
+### Implemented
+
+- Added repository lookup by database identifier.
+- Added a dashboard-specific job-detail view model.
+- Added single-row selection to the stored-job table.
+- Added complete job-detail rendering.
+- Added job metadata, status, dates, and application links.
+- Added full job-description display.
+- Replaced flattened description normalization with safe Markdown conversion.
+- Preserved HTML paragraph boundaries.
+- Preserved headings and explicit line breaks.
+- Converted unordered and ordered HTML lists into Markdown.
+- Preserved bold and italic emphasis.
+- Preserved safe HTTP and HTTPS links.
+- Ignored script, style, and unsupported presentation content.
+- Increased the automated test suite to 272 passing tests.
+
+### Live Application Result
+
+The dashboard was refreshed using current Datadog postings.
+
+The interface successfully:
+
+- selected individual jobs from the stored-job table
+- loaded the correct job by database identifier
+- displayed complete job metadata
+- displayed the official application link
+- displayed complete job descriptions
+- preserved paragraph spacing
+- displayed headings and list items correctly
+- changed the detail view when another job was selected
+
+Existing stored descriptions were refreshed through a selected-company scan so they could be reconstructed from the original Greenhouse HTML.
+
+### Architectural Decisions
+
+- The dashboard retrieves individual jobs through `JobRepository`.
+- Database records are converted before their sessions are closed.
+- Stable database identifiers connect table selections to detail records.
+- Provider HTML is not rendered directly in the frontend.
+- Description formatting is normalized during ingestion.
+- The canonical description remains readable outside Streamlit.
+- Formatting conversion remains deterministic and independently tested.
+
+### Validation
+
+- Completed 272 automated tests successfully.
+- Verified row-selection behavior manually.
+- Verified multiple Datadog job descriptions.
+- Verified headings, paragraphs, lists, emphasis, and links.
+- Verified that existing dashboard filters continue to work.
+
+### Next
+
+- Add resume upload and candidate-evidence initialization to the dashboard.
+- Connect structured requirement extraction to selected jobs.
+- Match extracted requirements against resume evidence.
+- Display match scores, strengths, gaps, and supporting evidence.
