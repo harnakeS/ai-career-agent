@@ -1,5 +1,5 @@
 from collections.abc import Collection
-
+from app.models.candidate import CandidateProfile
 from app.database.models import JobRecord
 from app.job_sources.models import CompanySource
 
@@ -7,6 +7,7 @@ from app.job_sources.models import CompanySource
 JobTableRow = dict[str, object]
 CompanyTableRow = dict[str, object]
 JobDetail = dict[str, object]
+CandidateProfileSummary = dict[str, object]
 
 
 def job_record_to_row(
@@ -136,3 +137,72 @@ def filter_job_rows(
         filtered_rows.append(row)
 
     return filtered_rows
+
+def candidate_profile_to_summary(
+    profile: CandidateProfile,
+) -> CandidateProfileSummary:
+    """Convert a candidate profile into dashboard summary data."""
+
+    technical_skills = list(dict.fromkeys([
+        *profile.programming_languages,
+        *profile.frameworks,
+        *profile.tools,
+        *profile.skills,
+    ]))
+
+    fields_of_study = [
+        *profile.majors,
+        *profile.minors,
+    ]
+
+    total_experience_months = sum([
+        profile.full_time_experience_months,
+        profile.internship_experience_months,
+        profile.co_op_experience_months,
+        profile.part_time_experience_months,
+        profile.contract_experience_months,
+    ])
+
+    return {
+        "Name": profile.name,
+        "Graduation Year": (
+            profile.graduation_year
+            if profile.graduation_year is not None
+            else "Unknown"
+        ),
+        "Education": profile.education,
+        "Fields of Study": (
+            ", ".join(fields_of_study)
+            if fields_of_study
+            else "Not specified"
+        ),
+        "Technical Skills": (
+            ", ".join(technical_skills)
+            if technical_skills
+            else "None detected"
+        ),
+        "Certifications": (
+            ", ".join(profile.certifications)
+            if profile.certifications
+            else "None detected"
+        ),
+        "Experience Months": total_experience_months,
+        "Target Roles": (
+            ", ".join(profile.desired_roles)
+            if profile.desired_roles
+            else "Not specified"
+        ),
+        "Preferred Locations": (
+            ", ".join(profile.preferred_locations)
+        ),
+        "Relocation": (
+            "Willing to relocate"
+            if profile.willing_to_relocate
+            else "Not willing to relocate"
+        ),
+        "Work Authorization": (
+            "U.S. citizen"
+            if profile.us_citizen
+            else "Requires review"
+        ),
+    }

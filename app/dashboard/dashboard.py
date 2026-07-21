@@ -10,6 +10,7 @@ from app.config.company_sources import (
     load_company_sources,
 )
 from app.dashboard.view_models import (
+    candidate_profile_to_summary,
     company_source_to_row,
     filter_job_rows,
     job_record_to_row,
@@ -26,11 +27,24 @@ from app.job_sources.models import (
 from app.pipeline.selected_company_pipeline import (
     SelectedCompanyRunResult,
 )
-
+from app.candidate.service import (
+    CandidateResumeResult,
+    CandidateResumeService,
+)
+from app.config.preferences import (
+    PreferencesLoadingError,
+    load_candidate_preferences,
+)
+from app.parsing.pdf_parser import (
+    ResumeParsingError,
+)
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 COMPANY_SOURCES_PATH = (
     PROJECT_ROOT / "config" / "company_sources.json"
+)
+PREFERENCES_PATH = (
+    PROJECT_ROOT / "config" / "preferences.json"
 )
 
 
@@ -131,6 +145,159 @@ def display_job_detail(
 
     st.markdown("#### Job Description")
     st.markdown(str(detail["Description"]))
+
+def display_resume_upload(
+) -> CandidateResumeResult | None:
+    """Process and retain a resume in the current Streamlit session."""
+
+    st.sidebar.header("Candidate Resume")
+    st.sidebar.caption(
+        "Your resume is processed in memory and is not "
+        "saved to the job database."
+    )
+
+    uploaded_resume = st.sidebar.file_uploader(
+        "Upload resume",
+        type=["pdf"],
+        accept_multiple_files=False,
+        help="Upload a text-based PDF resume.",
+    )
+
+    if "candidate_resume_result" not in st.session_state:
+        st.session_state.candidate_resume_result = None
+
+    if "candidate_resume_filename" not in st.session_state:
+        st.session_state.candidate_resume_filename = None
+
+    if uploaded_resume is not None:
+        process_resume = st.sidebar.button(
+            "Process resume",
+            type="primary",
+            key="process_candidate_resume",
+        )
+
+        if process_resume:
+            with st.spinner(
+                "Parsing resume and building candidate evidence..."
+            ):
+                try:
+                    preferences = (
+                        load_candidate_preferences(
+                            PREFERENCES_PATH
+                        )
+                    )
+
+                    result = (
+                        CandidateResumeService().process(
+                            uploaded_resume.getvalue(),
+                            preferences,
+                        )
+                    )
+
+                except (
+                    FileNotFoundError,
+                    PreferencesLoadingError,
+                    ResumeParsingError,
+                    ValueError,
+                ) as exc:
+                    st.sidebar.error(
+                        f"Resume processing failed: {exc}"
+                    )
+
+                else:
+                    st.session_state.candidate_resume_result = (
+                        result
+                    )
+                    st.session_state.candidate_resume_filename = (
+                        uploaded_resume.name
+                    )
+                    st.sidebar.success(
+                        "Resume processed successfully."
+                    )
+
+    result = st.session_state.candidate_resume_result
+    filename = st.session_state.candidate_resume_filename
+
+    if result is not None:
+        st.sidebar.success(
+            f"Active resume: {filename}"
+        )
+
+        if st.sidebar.button(
+            "Clear processed resume",
+            key="clear_candidate_resume",
+        ):
+            st.session_state.candidate_resume_result = None
+            st.session_state.candidate_resume_filename = None
+            st.rerun()
+
+    return result
+
+
+def display_candidate_summary(
+    result: CandidateResumeResult,
+) -> None:
+    """Display candidate information extracted from the active resume."""
+
+    summary = candidate_profile_to_summary(
+        result.profile
+    )
+
+    st.subheader("Candidate Profile")
+
+    summary_columns = st.columns(4)
+
+    summary_columns[0].metric(
+        "Candidate",
+        summary["Name"],
+    )
+    summary_columns[1].metric(
+        "Graduation Year",
+        summary["Graduation Year"],
+    )
+    summary_columns[2].metric(
+        "Experience",
+        f"{summary['Experience Months']} months",
+    )
+    summary_columns[3].metric(
+        "Evidence Items",
+        len(result.evidence.evidence),
+    )
+
+    with st.expander(
+        "View parsed candidate information",
+        expanded=False,
+    ):
+        st.write(
+            f"**Education:** {summary['Education']}"
+        )
+        st.write(
+            f"**Fields of study:** "
+            f"{summary['Fields of Study']}"
+        )
+        st.write(
+            f"**Technical skills:** "
+            f"{summary['Technical Skills']}"
+        )
+        st.write(
+            f"**Certifications:** "
+            f"{summary['Certifications']}"
+        )
+        st.write(
+            f"**Target roles:** "
+            f"{summary['Target Roles']}"
+        )
+        st.write(
+            f"**Preferred locations:** "
+            f"{summary['Preferred Locations']}"
+        )
+        st.write(
+            f"**Relocation:** {summary['Relocation']}"
+        )
+        st.write(
+            f"**Work authorization:** "
+            f"{summary['Work Authorization']}"
+        )
 
 
 def display_run_result(
@@ -399,6 +566,14 @@ def main() -> None:
         "Enabled Companies",
         enabled_count,
     )
+
+    candidate_resume = display_resume_upload()
+
+    if candidate_resume is not None:
+        st.divider()
+        display_candidate_summary(
+            candidate_resume
+        )
 
     if "last_run_result" not in st.session_state:
         st.session_state.last_run_result = None

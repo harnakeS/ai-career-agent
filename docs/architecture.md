@@ -215,11 +215,6 @@ Resume-derived fields include:
 - Tools and technologies
 - Concepts
 - Certifications
-- Licenses
-- Schedule
-- Clearances
-- Authorization
-- Languages
 - Full-time experience months
 - Internship experience months
 - Co-op experience months
@@ -227,13 +222,15 @@ Resume-derived fields include:
 - Contract experience months
 - Inferred desired roles
 
-User preferences that cannot be safely inferred from a resume are loaded from a separate JSON configuration file.
+User preferences and eligibility information that cannot be safely inferred from a resume are loaded from a separate user-provided configuration file.
 
 These include:
 
 - Preferred locations
 - Willingness to relocate
 - U.S. citizenship and work authorization
+
+These values are treated as explicit user input. The application must never infer work authorization, citizenship, sponsorship needs, or relocation willingness from resume content.
 
 ### Runtime Flow
 
@@ -258,6 +255,30 @@ CandidateProfile
 JobPipeline
     ↓
 Matching Engine
+
+---
+
+### Uploaded Resume Processing
+
+The dashboard accepts text-based PDF resumes.
+
+Uploaded PDF Bytes
+        ↓
+In-Memory PDF Text Extraction
+        ↓
+ParsedResume
+        ↓
+CandidateProfile Builder
+        +
+User-Provided Preferences
+        ↓
+CandidateProfile
+        ↓
+CandidateEvidenceBuilder
+        ↓
+CandidateEvidenceCollection
+        ↓
+Streamlit Session State
 
 ---
 
@@ -546,7 +567,7 @@ Job Table and Job Detail View
 
 ## Testing
 
-Test Count: 272
+Test Count: 279
 
 The project currently uses `pytest`.
 
@@ -636,6 +657,13 @@ Existing tests cover:
 - Unordered-list conversion
 - Ordered-list conversion
 - Safe emphasis and link conversion
+- Uploaded PDF byte extraction
+- Empty uploaded-PDF rejection
+- Uploaded PDF readable-text validation
+- In-memory resume parsing orchestration
+- Candidate resume service coordination
+- Candidate resume error propagation
+- Candidate dashboard summary conversion
 
 Tests are added before major features are integrated into the live pipeline.
 
@@ -657,7 +685,8 @@ The current version has several known limitations:
 - The existing processing pipeline currently uses only the Remotive collector.
 - The runnable selected-company pipeline can collect, convert, and persist Greenhouse jobs but does not yet apply filtering or matching.
 - Selected-company scans are manually initiated and are not yet scheduled.
-- Location, relocation, and work-authorization preferences are still supplied in `main.py`.
+- Search preferences are loaded from `config/preferences.json` and are not yet editable through the dashboard.
+- Uploaded candidate data is session-based and is not yet persisted between application restarts.
 - Target-role inference currently uses deterministic keyword rules.
 - The original rule matcher still relies primarily on exact term matching.
 - The new evidence matcher supports canonical vocabulary resolution but is not yet integrated into final job scoring.

@@ -17,6 +17,11 @@ from app.parsing.resume.project_parser import (
     ParsedProject,
     parse_projects_section,
 )
+from app.parsing.pdf_parser import (
+    clean_resume_text,
+    extract_pdf_text,
+    extract_pdf_text_from_bytes,
+)
 
 
 @dataclass(frozen=True)
@@ -32,15 +37,17 @@ class ParsedResume:
     projects: list[ParsedProject]
 
 
-def parse_resume(file_path: str | Path) -> ParsedResume:
-    """Extract and structure the currently supported resume data."""
+def _parse_extracted_resume_text(
+    raw_text: str,
+) -> ParsedResume:
+    """Run all structured parsers against extracted resume text."""
 
-    raw_text = extract_pdf_text(file_path)
     cleaned_text = clean_resume_text(raw_text)
     sections = split_resume_sections(cleaned_text)
     skills = parse_skills_section(sections.skills)
     education = parse_education_section(sections.education)
     projects = parse_projects_section(sections.projects)
+
     experience_overrides = {
         (
             "Dropp Logistics",
@@ -62,3 +69,25 @@ def parse_resume(file_path: str | Path) -> ParsedResume:
         experiences=experiences,
         projects=projects,
     )
+
+
+def parse_resume(
+    file_path: str | Path,
+) -> ParsedResume:
+    """Extract and structure a resume PDF stored on disk."""
+
+    raw_text = extract_pdf_text(file_path)
+
+    return _parse_extracted_resume_text(raw_text)
+
+
+def parse_resume_bytes(
+    pdf_bytes: bytes,
+) -> ParsedResume:
+    """Extract and structure an uploaded resume PDF in memory."""
+
+    raw_text = extract_pdf_text_from_bytes(
+        pdf_bytes
+    )
+
+    return _parse_extracted_resume_text(raw_text)

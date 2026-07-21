@@ -1,6 +1,9 @@
 from pathlib import Path
 from app.parsing.resume.experience_parser import EmploymentType
-from app.parsing.resume_parser import parse_resume
+from app.parsing.resume_parser import (
+    parse_resume,
+    parse_resume_bytes,
+)
 
 
 def test_parse_resume_combines_all_parser_steps(
@@ -89,3 +92,61 @@ Python, SQL
     assert project.bullets == [
         "Built a job recommendation system."
     ]
+
+def test_parse_resume_bytes_uses_uploaded_pdf_text(
+    monkeypatch,
+) -> None:
+    sample_text = """Harnake Sahi
+
+EDUCATION
+Bachelor of Arts in Computer Science
+Sep 2022 - May 2026
+Rutgers University
+
+SKILLS
+Programming Languages
+Python | Java
+Frameworks/Libraries
+Pandas
+Tools & Technologies
+Git
+Concepts
+Machine Learning
+Certifications
+Azure AI Engineer Associate
+
+WORK EXPERIENCE
+Example Company
+May 2025 - Sep 2025
+Software Engineer Intern
+New York, NY
+• Built Python tools.
+
+PROJECTS
+AI Job Scout
+Jan 2026 - Mar 2026
+Python, SQL
+• Built a job matching application.
+"""
+
+    monkeypatch.setattr(
+        "app.parsing.resume_parser."
+        "extract_pdf_text_from_bytes",
+        lambda _: sample_text,
+    )
+
+    parsed_resume = parse_resume_bytes(
+        b"uploaded-pdf"
+    )
+
+    assert parsed_resume.raw_text == sample_text
+    assert (
+        parsed_resume.education.major
+        == "Computer Science"
+    )
+    assert (
+        parsed_resume.skills.programming_languages
+        == ["Python", "Java"]
+    )
+    assert len(parsed_resume.experiences) == 1
+    assert len(parsed_resume.projects) == 1

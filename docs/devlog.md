@@ -792,3 +792,72 @@ Existing stored descriptions were refreshed through a selected-company scan so t
 - Connect structured requirement extraction to selected jobs.
 - Match extracted requirements against resume evidence.
 - Display match scores, strengths, gaps, and supporting evidence.
+
+---
+
+## 2026-07-21 - In-Memory Resume Upload and Candidate Initialization
+
+### Implemented
+
+- Added PDF text extraction from in-memory bytes.
+- Preserved the existing file-based resume parser.
+- Added shared resume-text parsing orchestration.
+- Added `CandidateResumeService`.
+- Connected resume parsing, candidate-profile generation, and evidence generation.
+- Added PDF upload controls to the Streamlit sidebar.
+- Added explicit resume processing and clearing actions.
+- Stored processed candidate data in Streamlit session state.
+- Added a candidate-profile summary.
+- Displayed education, skills, certifications, experience, roles, locations, relocation preferences, and work authorization.
+- Kept uploaded resumes out of the local database.
+- Increased the automated test suite to 279 passing tests.
+
+### Data Provenance
+
+Candidate data is assembled from two separate sources.
+
+Resume-derived information includes:
+
+- education
+- graduation year
+- technical skills
+- certifications
+- work experience
+- projects
+- inferred target roles
+
+User-provided preferences include:
+
+- preferred locations
+- willingness to relocate
+- citizenship and work authorization
+
+The application does not infer personal eligibility or relocation information from resume content.
+
+### Architectural Decisions
+
+- Uploaded resumes are processed directly from bytes.
+- Resume uploads are not written to disk by the application.
+- `CandidateResumeService` coordinates candidate initialization outside the dashboard.
+- The dashboard does not directly coordinate individual resume parsers.
+- Candidate data remains in session state for the current local application session.
+- Resume-derived information and user preferences remain separate sources.
+- Search preferences currently come from `config/preferences.json`.
+
+### Validation
+
+- Completed 279 automated tests successfully.
+- Verified PDF upload through the Streamlit dashboard.
+- Verified candidate-profile display.
+- Verified candidate-evidence creation.
+- Verified candidate data survives ordinary dashboard reruns.
+- Verified the processed resume can be cleared.
+- Verified existing job search and detail interactions continue working.
+
+### Next
+
+- Add dashboard controls for user-provided search preferences.
+- Convert selected stored jobs into canonical `JobPosting` objects.
+- Extract structured requirements for a selected job.
+- Match requirements against the active candidate evidence.
+- Display strengths, gaps, and supporting resume evidence.

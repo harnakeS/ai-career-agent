@@ -253,6 +253,12 @@ Provide a single interface for managing my job search.
 - [x] Select jobs from the stored-job table
 - [x] Display official application links in the detail view
 - [x] Display readable job-description formatting
+- [x] Upload a PDF resume
+- [x] Process uploaded resumes in memory
+- [x] Display a parsed candidate summary
+- [x] Retain candidate information through dashboard reruns
+- [x] Clear the active processed resume
+- [x] Keep user preferences separate from resume-derived data
 
 ### Planned
 
@@ -262,6 +268,7 @@ Provide a single interface for managing my job search.
 - [ ] Saved jobs
 - [ ] Application tracker
 - [ ] Job analytics
+- [ ] Edit job-search preferences through the dashboard
 
 ---
 

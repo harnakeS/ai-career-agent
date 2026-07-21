@@ -23,10 +23,14 @@ The application currently supports:
 - Selectable job-detail views
 - Readable Markdown-formatted job descriptions
 - Preserved headings, paragraphs, lists, emphasis, and links
+- In-memory PDF resume uploads
+- Session-based candidate profiles
+- Resume-derived candidate evidence
+- Explicit user-provided search preferences
 
 The current selected-company configuration monitors Datadog as the first live Greenhouse integration. The architecture is designed to expand to ten selected companies through reusable ATS providers.
 
-The automated test suite currently contains 272 passing tests.
+The automated test suite currently contains 279 passing tests.
 
 ## Local Setup
 

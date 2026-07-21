@@ -1,6 +1,7 @@
 from datetime import date, datetime, timezone
-
+from app.models.candidate import CandidateProfile
 from app.dashboard.view_models import (
+    candidate_profile_to_summary,
     company_source_to_row,
     filter_job_rows,
     job_record_to_row,
@@ -182,4 +183,64 @@ def test_converts_job_record_to_detail() -> None:
         "Application URL": (
             "https://example.com/jobs/12345"
         ),
+    }
+
+def test_converts_candidate_profile_to_summary() -> None:
+    profile = CandidateProfile(
+        name="Harnake Sahi",
+        graduation_year=2026,
+        education="Bachelor of Arts",
+        majors=["Computer Science"],
+        minors=["Economics"],
+        programming_languages=["Python", "Java"],
+        frameworks=["Pandas"],
+        tools=["Git", "Linux"],
+        skills=["Machine Learning"],
+        certifications=[
+            "Azure AI Engineer Associate"
+        ],
+        full_time_experience_months=0,
+        internship_experience_months=10,
+        co_op_experience_months=0,
+        part_time_experience_months=0,
+        contract_experience_months=0,
+        preferred_locations=[
+            "New Jersey",
+            "New York",
+        ],
+        willing_to_relocate=True,
+        us_citizen=True,
+        desired_roles=[
+            "Software Engineer",
+            "AI Engineer",
+        ],
+    )
+
+    summary = candidate_profile_to_summary(
+        profile
+    )
+
+    assert summary == {
+        "Name": "Harnake Sahi",
+        "Graduation Year": 2026,
+        "Education": "Bachelor of Arts",
+        "Fields of Study": (
+            "Computer Science, Economics"
+        ),
+        "Technical Skills": (
+            "Python, Java, Pandas, Git, Linux, "
+            "Machine Learning"
+        ),
+        "Certifications": (
+            "Azure AI Engineer Associate"
+        ),
+        "Experience Months": 10,
+        "Target Roles": (
+            "Software Engineer, AI Engineer"
+        ),
+        "Preferred Locations": (
+            "New Jersey, New York"
+        ),
+        "Relocation": "Willing to relocate",
+        "Work Authorization": "U.S. citizen",
     }
