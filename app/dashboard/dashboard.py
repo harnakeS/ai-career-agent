@@ -138,35 +138,46 @@ def display_candidate_job_match(
             "The structured requirements were saved for reuse."
         )
 
-    metrics = st.columns(5)
+    metrics = st.columns(6)
+
+    coverage_value = (
+        f"{result.coverage_score.score:.1f}%"
+        if result.coverage_score.score is not None
+        else "Not available"
+    )
 
     metrics[0].metric(
+        "Coverage Score",
+        coverage_value,
+    )
+    metrics[1].metric(
         "Extracted Requirements",
         len(result.requirements.requirements),
     )
-    metrics[1].metric(
+    metrics[2].metric(
         "Matched",
         result.matched_count,
     )
-    metrics[2].metric(
+    metrics[3].metric(
         "Required Gaps",
         result.required_gap_count,
     )
-    metrics[3].metric(
+    metrics[4].metric(
         "Preferred / Optional",
         result.non_required_missing_count,
     )
-    metrics[4].metric(
+    metrics[5].metric(
         "Not Evaluated",
         result.unevaluated_count,
     )
 
     st.caption(
-        "This is evidence coverage, not a final job-match score. "
-        "Required gaps are missing mandatory qualifications. "
-        "Preferred or optional qualifications do not determine "
-        "basic eligibility. Not evaluated means the deterministic "
-        "matcher does not yet support that requirement category."
+        "Coverage Score is deterministic and uses only evaluated "
+        "extracted requirements: required qualifications have "
+        "weight 5, preferred qualifications weight 2, and optional "
+        "qualifications weight 1. Unsupported categories and "
+        "explicit résumé overlap do not affect the score. "
+        "This is requirement coverage, not a final job-fit score."
     )
 
     overlap_rows = [

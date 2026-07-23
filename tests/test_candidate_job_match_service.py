@@ -106,6 +106,12 @@ def test_matches_extracted_requirements_to_evidence() -> None:
     assert result.unevaluated_count == 0
     assert result.overlap_count == 1
     assert len(result.description_overlaps.overlaps) == 1
+    assert result.coverage_score.score == 50.0
+    assert (
+        result.coverage_score.matched_required_count
+        == 1
+    )
+    assert result.coverage_score.required_count == 2
     assert (
         result.description_overlaps
         .overlaps[0]
@@ -223,3 +229,12 @@ def test_missing_preferred_requirement_is_not_required_gap() -> None:
     assert result.unmatched_count == 1
     assert result.required_gap_count == 0
     assert result.non_required_missing_count == 1
+    assert result.coverage_score.score == 0.0
+    assert (
+        result.coverage_score.required_count
+        == 0
+    )
+    assert (
+        result.coverage_score.non_required_count
+        == 1
+    )

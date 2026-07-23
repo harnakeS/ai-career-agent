@@ -567,7 +567,7 @@ Job Table and Job Detail View
 
 ## Testing
 
-Test Count: 346
+Test Count: 352
 
 The project currently uses `pytest`.
 
@@ -683,6 +683,11 @@ Existing tests cover:
 - Repeated extraction AI-call prevention
 - Unstored-job cache bypass
 - Requirements-cache metadata propagation
+- Weighted requirement-coverage scoring
+- Required, preferred, and optional weight application
+- Unsupported-requirement score exclusion
+- Empty and unevaluated score handling
+- Required and non-required coverage counts
 
 Tests are added before major features are integrated into the live pipeline.
 
@@ -708,20 +713,20 @@ The current version has several known limitations:
 - Uploaded candidate data is session-based and is not yet persisted between application restarts.
 - Target-role inference currently uses deterministic keyword rules.
 - The original rule matcher still relies primarily on exact term matching.
-- The new evidence matcher supports canonical vocabulary resolution but is not yet integrated into final job scoring.
 - Only jobs that pass eligibility filtering receive match scores.
 - Jobs that are skipped do not yet store an eligibility reason.
 - Closed postings are detected only after a successful selected-company snapshot.
 - The dashboard is currently a local, single-user interface.
 - Saved jobs and application tracking are not yet implemented.
 - Selected-company scans are manually initiated and are not yet scheduled.
-- Match scores are not yet category weighted.
 - Semantic similarity is not yet implemented.
 - Extracted job requirements are persisted, but personalized candidate match results remain in Streamlit session state.
 - Small local language models may omit qualifications or produce different requirement groupings between runs.
 - Explicit résumé overlap protects visible evidence alignment but does not replace complete requirement extraction.
-- Requirement coverage is not yet converted into a final weighted job-match score.
 - AI analysis currently runs synchronously for one selected job at a time.
+- Requirement matches now produce a weighted coverage score, but this score is not yet persisted.
+- Requirement coverage is not yet combined with candidate preferences, company priority, or posting freshness into a final ranking score.
+- Stored jobs cannot yet be sorted by the new personalized coverage score.
 
 These limitations are intentional for the current development phase. The deterministic implementation provides a stable baseline for future AI evaluation.
 
@@ -810,7 +815,7 @@ Requirement Evidence Matcher
 - [x] Match requirements against candidate evidence
 - [x] Display requirement matches in the dashboard
 - [x] Persist extracted requirements and match results
-- [ ] Integrate requirement-based scoring
+- [x] Integrate requirement-based scoring
 
 ---
 
@@ -942,6 +947,28 @@ Complete Job Description
 DescriptionEvidenceOverlapMatcher
         ↓
 Explicit Resume Overlap
+
+---
+
+## Deterministic Requirement-Coverage Scoring
+
+Evaluated requirement matches are converted into an explainable weighted coverage percentage.
+
+| Requirement Importance | Weight |
+|---|---:|
+| Required | 5 |
+| Preferred | 2 |
+| Optional | 1 |
+
+EvidenceMatchResult
+        ↓
+Evaluated Requirement Matches
+        ↓
+Importance Weights
+        ↓
+Earned Weight / Available Weight
+        ↓
+Requirement Coverage Percentage
 
 ---
 

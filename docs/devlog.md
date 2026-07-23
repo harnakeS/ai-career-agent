@@ -1005,3 +1005,45 @@ The repeated analysis:
 - Persist candidate-to-job match summaries.
 - Add deterministic weighted job scoring.
 - Rank stored jobs by personalized match quality.
+
+---
+
+## 2026-07-23 - Deterministic Requirement-Coverage Scoring
+
+### Implemented
+
+- Added a dedicated requirement-coverage scoring module.
+- Assigned weight 5 to required qualifications.
+- Assigned weight 2 to preferred qualifications.
+- Assigned weight 1 to optional qualifications.
+- Excluded unsupported requirement categories from score calculations.
+- Added required and non-required coverage counts.
+- Added explicit handling for empty and completely unevaluated results.
+- Integrated coverage scoring into candidate-to-job matching.
+- Added coverage-score display to the Streamlit analysis interface.
+- Added an explanation of the deterministic weighting formula.
+- Preserved explicit résumé overlap as a separate non-scoring signal.
+- Increased the automated test suite to 352 passing tests.
+
+### Live Application Result
+
+The scorer was verified through the Streamlit dashboard using cached requirements for the Datadog FP&A posting.
+
+The analysis:
+
+- loaded requirements from SQLite without invoking Ollama
+- displayed one matched required qualification
+- displayed four missing required qualifications
+- displayed two missing preferred qualifications
+- produced a deterministic coverage score of `17.2%`
+- preserved Python, SQL, Computer Science, and Economics as explicit overlap
+- did not incorrectly award overlap points for requirements omitted by the AI extractor
+
+The score matched the expected calculation:
+
+```text
+5 earned points
+÷
+29 available points
+=
+17.2% requirement coverage

@@ -19,6 +19,10 @@ from app.models.job_requirements import (
 from app.parsing.requirements.service import (
     RequirementsExtractionService,
 )
+from app.matching.requirement_scoring import (
+    RequirementCoverageScore,
+    RequirementCoverageScorer,
+)
 
 
 @dataclass(frozen=True)
@@ -29,6 +33,7 @@ class CandidateJobMatchResult:
     requirements: JobRequirements
     evidence_matches: EvidenceMatchResult
     description_overlaps: DescriptionEvidenceOverlapResult
+    coverage_score: RequirementCoverageScore
     requirements_cache_hit: bool = False
 
     @property
@@ -100,6 +105,9 @@ class CandidateJobMatchService:
         overlap_matcher: (
             DescriptionEvidenceOverlapMatcher | None
         ) = None,
+        coverage_scorer: (
+            RequirementCoverageScorer | None
+        ) = None,
     ) -> None:
         self._requirements_service = requirements_service
         self._evidence_matcher = (
@@ -109,6 +117,10 @@ class CandidateJobMatchService:
         self._overlap_matcher = (
             overlap_matcher
             or DescriptionEvidenceOverlapMatcher()
+        )
+        self._coverage_scorer = (
+            coverage_scorer
+            or RequirementCoverageScorer()
         )
 
     def match(
@@ -132,6 +144,12 @@ class CandidateJobMatchService:
             )
         )
 
+        coverage_score = (
+            self._coverage_scorer.score(
+                evidence_matches
+            )
+        )
+
         description_overlaps = (
             self._overlap_matcher.match(
                 job.description,
@@ -144,6 +162,7 @@ class CandidateJobMatchService:
             requirements=requirements,
             evidence_matches=evidence_matches,
             description_overlaps=description_overlaps,
+            coverage_score=coverage_score,
             requirements_cache_hit=(
                 extraction_result.cache_hit
             ),

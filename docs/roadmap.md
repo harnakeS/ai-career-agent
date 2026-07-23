@@ -64,6 +64,9 @@ Determine how well a job matches my background before introducing AI.
 - [x] Category-based scoring components
 - [x] Explainable match reasons
 - [x] Match score persistence
+- [x] Deterministic weighted requirement coverage
+- [x] Required, preferred, and optional importance weighting
+- [x] Unsupported-category score exclusion
 
 ### Remaining
 
@@ -144,6 +147,9 @@ Automatically transform a resume into structured candidate data that drives job 
 - Description-digest cache invalidation
 - Provider, model, and extractor-version cache isolation
 - Cache-aware AI extraction service
+- Deterministic requirement-coverage scorer
+- Importance-weighted requirement coverage
+- Required and non-required coverage counts
 
 ### Next
 
@@ -151,7 +157,7 @@ Automatically transform a resume into structured candidate data that drives job 
 
 - Persist extracted requirements
 - Cache completed AI analyses by job and model
-- Add deterministic weighted job scoring
+- Combine requirement coverage, candidate preferences, company priority, and posting freshness into a final ranking score
 - Add date-aware experience aggregation
 - Expand certification and license vocabulary
 
@@ -284,6 +290,8 @@ Provide a single interface for managing my job search.
 - [x] Display explicit résumé-to-description overlap
 - [x] Run personalized analysis for a selected job
 - [x] Display whether personalized analysis used cached requirements
+- [x] Display deterministic requirement-coverage scores
+- [x] Explain the requirement-coverage weighting formula
 
 ### Planned
 
