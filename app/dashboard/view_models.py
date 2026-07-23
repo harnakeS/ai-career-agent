@@ -2,12 +2,23 @@ from collections.abc import Collection
 from app.models.candidate import CandidateProfile
 from app.database.models import JobRecord
 from app.job_sources.models import CompanySource
+from app.matching.evidence_matcher import (
+    RequirementMatch,
+)
+from app.matching.description_overlap import (
+    DescriptionEvidenceOverlap,
+)
+from app.models.job_requirements import (
+    RequirementImportance,
+)
 
 
 JobTableRow = dict[str, object]
 CompanyTableRow = dict[str, object]
 JobDetail = dict[str, object]
 CandidateProfileSummary = dict[str, object]
+RequirementMatchRow = dict[str, object]
+DescriptionOverlapRow = dict[str, object]
 
 
 def job_record_to_row(
@@ -17,7 +28,6 @@ def job_record_to_row(
 
     return {
         "Job ID": record.id,
-        "Company": record.company,
         "Company": record.company,
         "Title": record.title,
         "Location": (
@@ -205,4 +215,80 @@ def candidate_profile_to_summary(
             if profile.us_citizen
             else "Requires review"
         ),
+    }
+
+def requirement_match_to_row(
+    match: RequirementMatch,
+) -> RequirementMatchRow:
+    """Convert one requirement match into dashboard table data."""
+
+    if not match.evaluated:
+        status = "Not evaluated"
+    elif match.matched:
+        status = "Matched"
+    elif (
+        match.requirement.importance
+        == RequirementImportance.REQUIRED
+    ):
+        status = "Required gap"
+    elif (
+        match.requirement.importance
+        == RequirementImportance.PREFERRED
+    ):
+        status = "Preferred missing"
+    else:
+        status = "Optional missing"
+
+    supporting_evidence = [
+        (
+            f"{item.value} "
+            f"({item.source_name or item.source_type.value})"
+        )
+        for item in match.evidence
+    ]
+
+    requirement_display = match.requirement.value
+
+    if match.requirement.alternatives:
+        alternatives_display = ", ".join(
+            match.requirement.alternatives
+        )
+
+        requirement_display = (
+            f"{requirement_display} "
+            f"(or {alternatives_display})"
+        )
+
+    return {
+        "Category": (
+            match.requirement.category.value.title()
+        ),
+        "Importance": (
+            match.requirement.importance.value.title()
+        ),
+        "Requirement": requirement_display,
+        "Status": status,
+        "Supporting Evidence": (
+            "; ".join(supporting_evidence)
+            if supporting_evidence
+            else "None"
+        ),
+        "Explanation": match.reason,
+    }
+
+def description_overlap_to_row(
+    overlap: DescriptionEvidenceOverlap,
+) -> DescriptionOverlapRow:
+    """Convert explicit job-description overlap into table data."""
+
+    evidence = overlap.evidence
+
+    return {
+        "Category": evidence.category.value.title(),
+        "Resume Evidence": evidence.value,
+        "Source": (
+            evidence.source_name
+            or evidence.source_type.value.title()
+        ),
+        "Explanation": overlap.reason,
     }

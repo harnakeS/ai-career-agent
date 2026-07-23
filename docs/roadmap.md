@@ -131,11 +131,26 @@ Automatically transform a resume into structured candidate data that drives job 
 - Category-isolated evidence comparison
 - Explainable direct and alias-based match reasons
 - Deterministic experience-duration matching
+- Requirement alternatives
+- Qualification-section isolation
+- Education-level and field-of-study separation
+- Default production vocabulary
+- OpenAI and Ollama provider composition
+- AI extraction timeout and output controls
+- Required and preferred qualification separation
+- Explicit résumé-to-description overlap detection
+- Hybrid candidate-to-job analysis
 
 ### Next
 
-- Add education-equivalency matching
-- Add certification and license matching rules
+### Next
+
+- Persist extracted requirements
+- Cache completed AI analyses by job and model
+- Persist candidate-to-job match results
+- Add deterministic weighted job scoring
+- Add date-aware experience aggregation
+- Expand certification and license vocabulary
 
 ### Future Vocabulary Improvements
 
@@ -259,12 +274,17 @@ Provide a single interface for managing my job search.
 - [x] Retain candidate information through dashboard reruns
 - [x] Clear the active processed resume
 - [x] Keep user preferences separate from resume-derived data
+- [x] Display matched requirements and resume evidence
+- [x] Display required qualification gaps
+- [x] Display missing preferred qualifications separately
+- [x] Display unsupported requirement categories
+- [x] Display explicit résumé-to-description overlap
+- [x] Run personalized analysis for a selected job
 
 ### Planned
 
 - [ ] Sort by match score
 - [ ] Filter by location
-- [ ] Display matched requirements and resume evidence
 - [ ] Saved jobs
 - [ ] Application tracker
 - [ ] Job analytics
@@ -286,9 +306,9 @@ Help prepare high-quality applications.
 - [ ] Interview preparation
 - [ ] Company research summaries
 - [ ] Personalized application recommendations
-- [ ] Explain why each requirement matched
-- [ ] Show supporting resume evidence
-- [ ] Explain missing qualifications
+- [x] Explain why each requirement matched
+- [x] Show supporting resume evidence
+- [x] Explain missing qualifications
 
 ---
 

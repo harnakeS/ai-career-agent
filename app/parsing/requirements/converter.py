@@ -15,6 +15,101 @@ _IMPORTANCE_PRIORITY: dict[RequirementImportance, int] = {
     RequirementImportance.PREFERRED: 2,
     RequirementImportance.REQUIRED: 3,
 }
+from app.vocabulary.text import normalize_vocabulary_text
+
+def _normalize_alternatives(
+    value: str,
+    alternatives: list[str],
+) -> list[str]:
+    """Trim and deduplicate alternative requirement values."""
+
+    normalized_primary = value.casefold()
+    seen = {normalized_primary}
+    result: list[str] = []
+
+    for alternative in alternatives:
+        cleaned_alternative = alternative.strip()
+        normalized_alternative = cleaned_alternative.casefold()
+
+        if (
+            not cleaned_alternative
+            or normalized_alternative in seen
+        ):
+            continue
+
+        seen.add(normalized_alternative)
+        result.append(cleaned_alternative)
+
+    return result
+
+def _expand_mixed_requirement(
+    requirement: Requirement,
+) -> list[Requirement]:
+    """
+    Separate a degree level from alternative fields of study.
+
+    Small language models may incorrectly return a degree level and its
+    acceptable academic fields as one alternatives group. A candidate
+    must satisfy both the degree level and one acceptable field.
+    """
+
+    if (
+        requirement.category
+        != RequirementCategory.EDUCATION
+        or len(requirement.alternatives) < 2
+    ):
+        return [requirement]
+
+    normalized_value = normalize_vocabulary_text(
+        requirement.value
+    )
+
+    education_level_terms = {
+        "degree",
+        "diploma",
+        "ged",
+    }
+
+    value_is_education_level = any(
+        term in normalized_value.split()
+        for term in education_level_terms
+    )
+
+    if not value_is_education_level:
+        return [requirement]
+
+    alternatives_are_fields = all(
+        not any(
+            term
+            in normalize_vocabulary_text(
+                alternative
+            ).split()
+            for term in education_level_terms
+        )
+        for alternative in requirement.alternatives
+    )
+
+    if not alternatives_are_fields:
+        return [requirement]
+
+    degree_requirement = requirement.model_copy(
+        update={
+            "alternatives": [],
+        }
+    )
+
+    field_requirement = Requirement(
+        category=RequirementCategory.EDUCATION,
+        importance=requirement.importance,
+        value=requirement.alternatives[0],
+        alternatives=requirement.alternatives[1:],
+        source_text=requirement.source_text,
+    )
+
+    return [
+        degree_requirement,
+        field_requirement,
+    ]
 
 
 def convert_extracted_requirements(
@@ -41,6 +136,11 @@ def convert_extracted_requirements(
             else ""
         )
 
+        alternatives = _normalize_alternatives(
+            value,
+            extracted_requirement.alternatives,
+        )
+
         deduplication_key = (
             extracted_requirement.category.value,
             value.casefold(),
@@ -50,20 +150,41 @@ def convert_extracted_requirements(
             category=extracted_requirement.category,
             importance=extracted_requirement.importance,
             value=value,
+            alternatives=alternatives,
             source_text=source_text,
         )
 
-        existing = deduplicated.get(deduplication_key)
+        expanded_requirements = (
+            _expand_mixed_requirement(requirement)
+        )
 
-        if existing is None:
-            deduplicated[deduplication_key] = requirement
-            continue
+        for expanded_requirement in expanded_requirements:
+            deduplication_key = (
+                expanded_requirement.category.value,
+                expanded_requirement.value.casefold(),
+            )
 
-        if (
-            _IMPORTANCE_PRIORITY[requirement.importance]
-            > _IMPORTANCE_PRIORITY[existing.importance]
-        ):
-            deduplicated[deduplication_key] = requirement
+            existing = deduplicated.get(
+                deduplication_key
+            )
+
+            if existing is None:
+                deduplicated[
+                    deduplication_key
+                ] = expanded_requirement
+                continue
+
+            if (
+                _IMPORTANCE_PRIORITY[
+                    expanded_requirement.importance
+                ]
+                > _IMPORTANCE_PRIORITY[
+                    existing.importance
+                ]
+            ):
+                deduplicated[
+                    deduplication_key
+                ] = expanded_requirement
 
     minimum_experience_months = extracted.minimum_experience_months
 

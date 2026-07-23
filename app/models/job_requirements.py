@@ -32,8 +32,17 @@ class Requirement(BaseModel):
     category: RequirementCategory
     importance: RequirementImportance
     value: str
+    alternatives: list[str] = Field(default_factory=list)
     source_text: str | None = None
 
+    @property
+    def acceptable_values(self) -> list[str]:
+        """Return every value that can satisfy this requirement."""
+
+        return [
+            self.value,
+            *self.alternatives,
+        ]
 
 class JobRequirements(BaseModel):
     """Structured requirements extracted from a job posting."""

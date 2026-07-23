@@ -38,6 +38,7 @@ def test_ollama_client_requests_structured_output(
 
     mock_sdk_client.chat.assert_called_once_with(
         model="test-model",
+        think=False,
         messages=[
             {
                 "role": "system",
@@ -51,7 +52,9 @@ def test_ollama_client_requests_structured_output(
         format=ExampleResponse.model_json_schema(),
         options={
             "temperature": 0,
+            "num_predict": 2048,
         },
+        keep_alive="30s",
     )
 
 
@@ -64,9 +67,32 @@ def test_ollama_client_uses_configured_host(
     )
 
     mock_client_class.assert_called_once_with(
-        host="http://example-host:11434"
+        host="http://example-host:11434",
+        timeout=90.0,
     )
 
+@patch("app.llm.ollama_client.Client")
+def test_ollama_client_uses_configured_timeout(
+    mock_client_class: MagicMock,
+) -> None:
+    OllamaStructuredLLMClient(
+        timeout_seconds=45.0,
+    )
+
+    mock_client_class.assert_called_once_with(
+        host="http://localhost:11434",
+        timeout=45.0,
+    )
+
+
+def test_ollama_client_rejects_invalid_timeout() -> None:
+    with pytest.raises(
+        ValueError,
+        match="greater than zero",
+    ):
+        OllamaStructuredLLMClient(
+            timeout_seconds=0,
+        )
 
 @patch("app.llm.ollama_client.Client")
 def test_ollama_client_rejects_empty_output(

@@ -24,11 +24,13 @@ from app.vocabulary.repository import (
 def create_requirement(
     value: str,
     category: RequirementCategory = RequirementCategory.SKILL,
+    alternatives: list[str] | None = None,
 ) -> Requirement:
     return Requirement(
         category=category,
         importance=RequirementImportance.REQUIRED,
         value=value,
+        alternatives=alternatives or [],
         source_text=value,
     )
 
@@ -290,7 +292,7 @@ def test_matches_all_job_requirements() -> None:
     assert result.unmatched_requirements[0].requirement.value == "Java"
 
 
-def test_unsupported_requirement_category_is_unmatched() -> None:
+def test_unsupported_requirement_category_is_not_evaluated() -> None:
     requirement = create_requirement(
         value="New Jersey",
         category=RequirementCategory.LOCATION,
@@ -299,9 +301,13 @@ def test_unsupported_requirement_category_is_unmatched() -> None:
         evidence=[create_evidence("New Jersey")]
     )
 
-    result = EvidenceMatcher().match_requirement(requirement, evidence)
+    result = EvidenceMatcher().match_requirement(
+        requirement,
+        evidence,
+    )
 
     assert result.matched is False
+    assert result.evaluated is False
     assert "not supported" in result.reason
 
 def test_matches_equivalent_experience_duration() -> None:
@@ -423,3 +429,138 @@ def test_nonduration_experience_uses_normal_matching() -> None:
 
     assert result.matched is True
     assert "direct-value comparison" in result.reason
+
+def test_separates_unmatched_and_unevaluated_requirements() -> None:
+    requirements = JobRequirements(
+        requirements=[
+            create_requirement("Python"),
+            create_requirement("Kubernetes"),
+            create_requirement(
+                value="New Jersey",
+                category=RequirementCategory.LOCATION,
+            ),
+        ]
+    )
+    evidence = CandidateEvidenceCollection(
+        evidence=[create_evidence("Python")]
+    )
+
+    result = EvidenceMatcher().match(
+        requirements,
+        evidence,
+    )
+
+    assert len(result.matched_requirements) == 1
+    assert len(result.unmatched_requirements) == 1
+    assert len(result.unevaluated_requirements) == 1
+
+    assert (
+        result.unmatched_requirements[0]
+        .requirement.value
+        == "Kubernetes"
+    )
+    assert (
+        result.unevaluated_requirements[0]
+        .requirement.value
+        == "New Jersey"
+    )
+
+def test_matches_exact_alternative_value() -> None:
+    requirement = create_requirement(
+        value="SQL",
+        alternatives=["Python", "R"],
+    )
+    evidence = CandidateEvidenceCollection(
+        evidence=[create_evidence("Python")]
+    )
+
+    result = EvidenceMatcher().match_requirement(
+        requirement,
+        evidence,
+    )
+
+    assert result.matched is True
+    assert len(result.evidence) == 1
+    assert result.evidence[0].value == "Python"
+
+
+def test_one_matching_alternative_satisfies_requirement() -> None:
+    requirement = create_requirement(
+        value="SQL",
+        alternatives=["Python", "R"],
+    )
+    evidence = CandidateEvidenceCollection(
+        evidence=[
+            create_evidence("Python"),
+            create_evidence("Java"),
+        ]
+    )
+
+    result = EvidenceMatcher().match_requirement(
+        requirement,
+        evidence,
+    )
+
+    assert result.matched is True
+    assert [item.value for item in result.evidence] == [
+        "Python",
+    ]
+
+
+def test_alternative_match_reason_identifies_matched_value() -> None:
+    requirement = create_requirement(
+        value="SQL",
+        alternatives=["Python", "R"],
+    )
+    evidence = CandidateEvidenceCollection(
+        evidence=[create_evidence("Python")]
+    )
+
+    result = EvidenceMatcher().match_requirement(
+        requirement,
+        evidence,
+    )
+
+    assert result.matched is True
+    assert "alternative 'Python'" in result.reason
+    assert "'SQL'" in result.reason
+
+
+def test_matches_alternative_through_vocabulary() -> None:
+    requirement = create_requirement(
+        value="TypeScript",
+        alternatives=["JS"],
+    )
+    evidence = CandidateEvidenceCollection(
+        evidence=[create_evidence("JavaScript")]
+    )
+
+    result = create_matcher_with_vocabulary().match_requirement(
+        requirement,
+        evidence,
+    )
+
+    assert result.matched is True
+    assert "alternative 'JS'" in result.reason
+    assert "canonical vocabulary concept" in result.reason
+
+
+def test_does_not_match_when_no_acceptable_value_is_present() -> None:
+    requirement = create_requirement(
+        value="SQL",
+        alternatives=["Python", "R"],
+    )
+    evidence = CandidateEvidenceCollection(
+        evidence=[create_evidence("Java")]
+    )
+
+    result = EvidenceMatcher().match_requirement(
+        requirement,
+        evidence,
+    )
+
+    assert result.matched is False
+    assert result.evidence == []
+    assert "'SQL'" in result.reason
+    assert "'Python'" in result.reason
+    assert "'R'" in result.reason

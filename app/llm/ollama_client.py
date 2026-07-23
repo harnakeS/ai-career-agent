@@ -20,8 +20,17 @@ class OllamaStructuredLLMClient(StructuredLLMClient):
         *,
         model: str = "qwen3:4b",
         host: str = "http://localhost:11434",
+        timeout_seconds: float = 90.0,
     ) -> None:
-        self._client = Client(host=host)
+        if timeout_seconds <= 0:
+            raise ValueError(
+                "timeout_seconds must be greater than zero."
+            )
+
+        self._client = Client(
+            host=host,
+            timeout=timeout_seconds,
+        )
         self._model = model
 
     def generate_structured(
@@ -33,6 +42,7 @@ class OllamaStructuredLLMClient(StructuredLLMClient):
     ) -> ResponseModelT:
         response = self._client.chat(
             model=self._model,
+            think=False,
             messages=[
                 {
                     "role": "system",
@@ -46,7 +56,9 @@ class OllamaStructuredLLMClient(StructuredLLMClient):
             format=response_model.model_json_schema(),
             options={
                 "temperature": 0,
+                "num_predict": 2048,
             },
+            keep_alive="30s",
         )
 
         content = response.message.content

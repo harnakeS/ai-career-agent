@@ -24,6 +24,7 @@ class RequirementMatch(BaseModel):
     matched: bool
     evidence: list[CandidateEvidence] = Field(default_factory=list)
     reason: str
+    evaluated: bool = True
 
 
 class EvidenceMatchResult(BaseModel):
@@ -36,9 +37,24 @@ class EvidenceMatchResult(BaseModel):
         return [match for match in self.matches if match.matched]
 
     @property
-    def unmatched_requirements(self) -> list[RequirementMatch]:
-        return [match for match in self.matches if not match.matched]
-
+    def unmatched_requirements(
+        self,
+    ) -> list[RequirementMatch]:
+        return [
+            match
+            for match in self.matches
+            if match.evaluated and not match.matched
+        ]
+    
+    @property
+    def unevaluated_requirements(
+        self,
+    ) -> list[RequirementMatch]:
+        return [
+            match
+            for match in self.matches
+            if not match.evaluated
+        ]
 
 class EvidenceMatcher:
     """Match structured job requirements against candidate evidence."""
@@ -103,6 +119,7 @@ class EvidenceMatcher:
             return RequirementMatch(
                 requirement=requirement,
                 matched=False,
+                evaluated=False,
                 evidence=[],
                 reason=(
                     f"Requirement category "
@@ -122,50 +139,103 @@ class EvidenceMatcher:
             if duration_match is not None:
                 return duration_match
 
-        matching_evidence = [
-            item
-            for item in candidates
-            if self._normalizer.equivalent(
-                requirement.value,
-                item.value,
-                vocabulary_category,
-            )
-        ]
+        match_pairs: list[
+            tuple[str, CandidateEvidence]
+        ] = []
+
+        for acceptable_value in requirement.acceptable_values:
+            for item in candidates:
+                if self._normalizer.equivalent(
+                    acceptable_value,
+                    item.value,
+                    vocabulary_category,
+                ):
+                    match_pairs.append(
+                        (acceptable_value, item)
+                    )
+
+        matching_evidence: list[CandidateEvidence] = []
+
+        for _, item in match_pairs:
+            if item not in matching_evidence:
+                matching_evidence.append(item)
 
         if not matching_evidence:
+            acceptable_values = ", ".join(
+                f"'{value}'"
+                for value in requirement.acceptable_values
+            )
+
             return RequirementMatch(
                 requirement=requirement,
                 matched=False,
                 evidence=[],
                 reason=(
                     "No equivalent candidate evidence was found for "
-                    f"'{requirement.value}'."
+                    f"any acceptable value: {acceptable_values}."
                 ),
             )
 
-        direct_matches = [
-            item
-            for item in matching_evidence
-            if self._normalizer.normalize_text(item.value)
-            == self._normalizer.normalize_text(requirement.value)
+        direct_match_pairs = [
+            (acceptable_value, item)
+            for acceptable_value, item in match_pairs
+            if (
+                self._normalizer.normalize_text(item.value)
+                == self._normalizer.normalize_text(
+                    acceptable_value
+                )
+            )
         ]
 
-        if direct_matches:
+        if direct_match_pairs:
+            matched_value = direct_match_pairs[0][0]
+
+            if (
+                self._normalizer.normalize_text(matched_value)
+                == self._normalizer.normalize_text(
+                    requirement.value
+                )
+            ):
+                matched_value_description = (
+                    f"'{requirement.value}'"
+                )
+            else:
+                matched_value_description = (
+                    f"alternative '{matched_value}' for "
+                    f"'{requirement.value}'"
+                )
+
             reason = (
                 f"Found {len(matching_evidence)} matching candidate "
-                f"evidence item(s) for '{requirement.value}' using "
-                "normalized direct-value comparison."
+                "evidence item(s) using normalized direct-value "
+                f"comparison with {matched_value_description}."
             )
         else:
+            matched_value = match_pairs[0][0]
             canonical_value = self._normalizer.normalize(
-                requirement.value,
+                matched_value,
                 vocabulary_category,
             )
 
+            if (
+                self._normalizer.normalize_text(matched_value)
+                == self._normalizer.normalize_text(
+                    requirement.value
+                )
+            ):
+                matched_value_description = (
+                    f"'{requirement.value}'"
+                )
+            else:
+                matched_value_description = (
+                    f"alternative '{matched_value}' for "
+                    f"'{requirement.value}'"
+                )
+
             reason = (
                 f"Found {len(matching_evidence)} matching candidate "
-                f"evidence item(s) for '{requirement.value}' through "
-                f"the canonical vocabulary concept "
+                f"evidence item(s) for {matched_value_description} "
+                "through the canonical vocabulary concept "
                 f"'{canonical_value}'."
             )
         

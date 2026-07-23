@@ -567,7 +567,7 @@ Job Table and Job Detail View
 
 ## Testing
 
-Test Count: 279
+Test Count: 338
 
 The project currently uses `pytest`.
 
@@ -664,6 +664,18 @@ Existing tests cover:
 - Candidate resume service coordination
 - Candidate resume error propagation
 - Candidate dashboard summary conversion
+- AI-provider configuration validation
+- Ollama request limits and timeout behavior
+- Database-record to canonical-job conversion
+- Qualification-section isolation
+- Requirement-alternative conversion
+- Education-level and field-of-study separation
+- Default canonical vocabulary composition
+- Candidate-to-job matching-service coordination
+- Required and preferred qualification separation
+- Explicit résumé-to-description overlap detection
+- Description-overlap boundary matching
+- Personalized dashboard analysis view models
 
 Tests are added before major features are integrated into the live pipeline.
 
@@ -695,11 +707,14 @@ The current version has several known limitations:
 - Closed postings are detected only after a successful selected-company snapshot.
 - The dashboard is currently a local, single-user interface.
 - Saved jobs and application tracking are not yet implemented.
-- Match results are not yet displayed in the dashboard.
 - Selected-company scans are manually initiated and are not yet scheduled.
 - Match scores are not yet category weighted.
 - Semantic similarity is not yet implemented.
-- LLM-based recommendations are not yet implemented.
+- Personalized match results currently remain in Streamlit session state and are not persisted.
+- Small local language models may omit qualifications or produce different requirement groupings between runs.
+- Explicit résumé overlap protects visible evidence alignment but does not replace complete requirement extraction.
+- Requirement coverage is not yet converted into a final weighted job-match score.
+- AI analysis currently runs synchronously for one selected job at a time.
 
 These limitations are intentional for the current development phase. The deterministic implementation provides a stable baseline for future AI evaluation.
 
@@ -779,12 +794,16 @@ Requirement Evidence Matcher
 - [x] Add requirement importance classification
 - [x] Add real job-description fixtures
 - [x] Define validated LLM extraction schema
-- [ ] Create provider-independent LLM extractor interface
-- [ ] Implement first LLM provider adapter
-- [ ] Convert extracted output into `JobRequirements`
-- [ ] Add deduplication and normalization
-- [ ] Match requirements against candidate evidence
-- [ ] Integrate requirement-based scoring into the pipeline
+- [x] Create provider-independent LLM interfaces
+- [x] Implement OpenAI and Ollama provider adapters
+- [x] Convert extracted output into `JobRequirements`
+- [x] Add deterministic normalization
+- [x] Support acceptable alternative values
+- [x] Isolate qualification-focused description text
+- [x] Match requirements against candidate evidence
+- [x] Display requirement matches in the dashboard
+- [ ] Persist extracted requirements and match results
+- [ ] Integrate requirement-based scoring
 
 ---
 
@@ -890,6 +909,32 @@ RequirementMatch
 Explicit duration evidence is currently combined when evaluating total experience.
 
 The matcher does not yet detect overlapping employment periods, duplicated timeline evidence, or concurrent positions. Date-aware experience aggregation will be introduced later.
+
+---
+
+## Hybrid Candidate-to-Job Analysis
+
+Personalized analysis combines AI-assisted requirement extraction with deterministic evidence evaluation.
+
+Selected JobPosting
+        ↓
+Qualification-Section Isolation
+        ↓
+LLM Requirements Extraction
+        ↓
+Validated JobRequirements
+        ↓
+Deterministic EvidenceMatcher
+        ↓
+Requirement Coverage
+
+Candidate Evidence
+        +
+Complete Job Description
+        ↓
+DescriptionEvidenceOverlapMatcher
+        ↓
+Explicit Resume Overlap
 
 ---
 

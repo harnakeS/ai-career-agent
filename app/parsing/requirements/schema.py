@@ -11,8 +11,30 @@ class ExtractedRequirement(BaseModel):
 
     category: RequirementCategory
     importance: RequirementImportance
-    value: str = Field(min_length=1)
-    source_text: str | None = None
+    value: str = Field(
+        min_length=1,
+        description=(
+            "One concise, atomic qualification. The value must not "
+            "combine a degree with a field of study, a duration with "
+            "an experience domain, or a competency with a tool."
+        ),
+    )
+    alternatives: list[str] = Field(
+        default_factory=list,
+        description=(
+            "Interchangeable one-of values that have the same "
+            "requirement category and qualification type as value. "
+            "An alternative must be able to replace value without "
+            "removing another mandatory qualification."
+        ),
+    )
+    source_text: str | None = Field(
+        default=None,
+        description=(
+            "The complete original job-description text supporting "
+            "this requirement."
+        ),
+    )
 
 
 class ExtractedJobRequirements(BaseModel):

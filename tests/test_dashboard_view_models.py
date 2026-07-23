@@ -6,11 +6,30 @@ from app.dashboard.view_models import (
     filter_job_rows,
     job_record_to_row,
     job_record_to_detail,
+    requirement_match_to_row,
+    description_overlap_to_row,
+
 )
 from app.database.models import JobRecord
 from app.job_sources.models import (
     CompanySource,
     JobSourceProvider,
+)
+from app.matching.evidence_matcher import (
+    RequirementMatch,
+)
+from app.models.candidate_evidence import (
+    CandidateEvidence,
+    EvidenceCategory,
+    EvidenceSourceType,
+)
+from app.models.job_requirements import (
+    Requirement,
+    RequirementCategory,
+    RequirementImportance,
+)
+from app.matching.description_overlap import (
+    DescriptionEvidenceOverlap,
 )
 
 
@@ -244,3 +263,149 @@ def test_converts_candidate_profile_to_summary() -> None:
         "Relocation": "Willing to relocate",
         "Work Authorization": "U.S. citizen",
     }
+
+def test_converts_requirement_match_statuses_to_rows() -> None:
+    requirement = Requirement(
+        category=RequirementCategory.SKILL,
+        importance=RequirementImportance.REQUIRED,
+        value="Python",
+        source_text="Python is required.",
+    )
+
+    evidence = CandidateEvidence(
+        category=EvidenceCategory.SKILL,
+        value="Python",
+        source_type=EvidenceSourceType.SKILLS,
+        source_name="Programming Languages",
+        evidence_text="Python",
+    )
+
+    matched_row = requirement_match_to_row(
+        RequirementMatch(
+            requirement=requirement,
+            matched=True,
+            evaluated=True,
+            evidence=[evidence],
+            reason="Found matching Python evidence.",
+        )
+    )
+
+    gap_row = requirement_match_to_row(
+        RequirementMatch(
+            requirement=requirement,
+            matched=False,
+            evaluated=True,
+            evidence=[],
+            reason="No Python evidence was found.",
+        )
+    )
+
+    unevaluated_row = requirement_match_to_row(
+        RequirementMatch(
+            requirement=requirement,
+            matched=False,
+            evaluated=False,
+            evidence=[],
+            reason="This category is not evaluated.",
+        )
+    )
+
+    assert matched_row["Status"] == "Matched"
+    assert matched_row["Supporting Evidence"] == (
+        "Python (Programming Languages)"
+    )
+
+    assert gap_row["Status"] == "Required gap"
+    assert gap_row["Supporting Evidence"] == "None"
+
+    assert (
+        unevaluated_row["Status"]
+        == "Not evaluated"
+    )
+
+def test_requirement_row_displays_alternatives() -> None:
+    requirement = Requirement(
+        category=RequirementCategory.SKILL,
+        importance=RequirementImportance.REQUIRED,
+        value="SQL",
+        alternatives=["Python", "R"],
+        source_text=(
+            "Experience using SQL, Python, or R is required."
+        ),
+    )
+
+    evidence = CandidateEvidence(
+        category=EvidenceCategory.SKILL,
+        value="Python",
+        source_type=EvidenceSourceType.SKILLS,
+        source_name="Programming Languages",
+        evidence_text="Python",
+    )
+
+    row = requirement_match_to_row(
+        RequirementMatch(
+            requirement=requirement,
+            matched=True,
+            evaluated=True,
+            evidence=[evidence],
+            reason=(
+                "Matched alternative 'Python' for 'SQL'."
+            ),
+        )
+    )
+
+    assert row["Requirement"] == "SQL (or Python, R)"
+    assert row["Status"] == "Matched"
+    assert row["Supporting Evidence"] == (
+        "Python (Programming Languages)"
+    )
+
+def test_converts_description_overlap_to_row() -> None:
+    evidence = CandidateEvidence(
+        category=EvidenceCategory.SKILL,
+        value="SQL",
+        source_type=EvidenceSourceType.SKILLS,
+        source_name="Programming Languages",
+        evidence_text="SQL",
+    )
+
+    row = description_overlap_to_row(
+        DescriptionEvidenceOverlap(
+            evidence=evidence,
+            reason=(
+                "Candidate evidence 'SQL' appears explicitly "
+                "in the job description."
+            ),
+        )
+    )
+
+    assert row == {
+        "Category": "Skill",
+        "Resume Evidence": "SQL",
+        "Source": "Programming Languages",
+        "Explanation": (
+            "Candidate evidence 'SQL' appears explicitly "
+            "in the job description."
+        ),
+    }
+
+def test_distinguishes_missing_preferred_qualification() -> None:
+    requirement = Requirement(
+        category=RequirementCategory.SKILL,
+        importance=RequirementImportance.PREFERRED,
+        value="Kubernetes",
+        source_text="Kubernetes experience is preferred.",
+    )
+
+    row = requirement_match_to_row(
+        RequirementMatch(
+            requirement=requirement,
+            matched=False,
+            evaluated=True,
+            evidence=[],
+            reason="No Kubernetes evidence was found.",
+        )
+    )
+
+    assert row["Status"] == "Preferred missing"
+    assert row["Supporting Evidence"] == "None"

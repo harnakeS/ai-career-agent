@@ -1,4 +1,5 @@
 from pathlib import Path
+from app.models.job import JobPosting
 
 import streamlit as st
 
@@ -15,6 +16,8 @@ from app.dashboard.view_models import (
     filter_job_rows,
     job_record_to_row,
     job_record_to_detail,
+    requirement_match_to_row,
+    description_overlap_to_row,
 )
 from app.database.database import (
     SessionLocal,
@@ -38,6 +41,21 @@ from app.config.preferences import (
 from app.parsing.pdf_parser import (
     ResumeParsingError,
 )
+from app.composition import (
+    create_candidate_job_match_service,
+    create_selected_company_pipeline,
+)
+from app.config.ai import (
+    AIConfigurationError,
+    AIProvider,
+    load_ai_configuration,
+)
+from app.database.converter import (
+    job_record_to_posting,
+)
+from app.matching.service import (
+    CandidateJobMatchResult,
+)
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 COMPANY_SOURCES_PATH = (
@@ -46,7 +64,7 @@ COMPANY_SOURCES_PATH = (
 PREFERENCES_PATH = (
     PROJECT_ROOT / "config" / "preferences.json"
 )
-
+ENV_PATH = PROJECT_ROOT / ".env"
 
 def load_configuration(
 ) -> CompanySourceConfiguration:
@@ -88,14 +106,236 @@ def load_job_detail(
 
         return job_record_to_detail(record)
 
+def load_job_posting(
+    job_id: int,
+) -> JobPosting | None:
+    """Load one stored job as the canonical job model."""
+
+    with SessionLocal() as session:
+        repository = JobRepository(session)
+        record = repository.get_by_id(job_id)
+
+        if record is None:
+            return None
+
+        return job_record_to_posting(record)
+
+def display_candidate_job_match(
+    result: CandidateJobMatchResult,
+) -> None:
+    """Display an explainable candidate-to-job match result."""
+
+    st.markdown("#### Candidate Match")
+
+    metrics = st.columns(5)
+
+    metrics[0].metric(
+        "Extracted Requirements",
+        len(result.requirements.requirements),
+    )
+    metrics[1].metric(
+        "Matched",
+        result.matched_count,
+    )
+    metrics[2].metric(
+        "Required Gaps",
+        result.required_gap_count,
+    )
+    metrics[3].metric(
+        "Preferred / Optional",
+        result.non_required_missing_count,
+    )
+    metrics[4].metric(
+        "Not Evaluated",
+        result.unevaluated_count,
+    )
+
+    st.caption(
+        "This is evidence coverage, not a final job-match score. "
+        "Required gaps are missing mandatory qualifications. "
+        "Preferred or optional qualifications do not determine "
+        "basic eligibility. Not evaluated means the deterministic "
+        "matcher does not yet support that requirement category."
+    )
+
+    overlap_rows = [
+        description_overlap_to_row(overlap)
+        for overlap in result.description_overlaps.overlaps
+    ]
+
+    st.markdown("##### Explicit Resume Overlap")
+
+    st.caption(
+        f"{result.overlap_count} candidate evidence item(s) "
+        "appear explicitly in the job description. "
+        "These overlaps are deterministic and do not depend on "
+        "the AI requirement extractor. An overlap does not by "
+        "itself prove that a complete job requirement is satisfied."
+    )
+
+    if overlap_rows:
+        st.dataframe(
+            overlap_rows,
+            hide_index=True,
+            use_container_width=True,
+            column_config={
+                "Resume Evidence": (
+                    st.column_config.TextColumn(
+                        "Resume Evidence",
+                        width="medium",
+                    )
+                ),
+                "Explanation": (
+                    st.column_config.TextColumn(
+                        "Explanation",
+                        width="large",
+                    )
+                ),
+            },
+        )
+    else:
+        st.info(
+            "No candidate evidence was found explicitly in "
+            "this job description."
+        )
+
+    st.markdown("##### Extracted Requirement Coverage")
+
+    rows = [
+        requirement_match_to_row(match)
+        for match in result.evidence_matches.matches
+    ]
+
+    if not rows:
+        st.info(
+            "The extractor did not identify explicit requirements "
+            "in this posting."
+        )
+        return
+
+    st.dataframe(
+        rows,
+        hide_index=True,
+        use_container_width=True,
+        column_config={
+            "Explanation": st.column_config.TextColumn(
+                "Explanation",
+                width="large",
+            ),
+            "Supporting Evidence": (
+                st.column_config.TextColumn(
+                    "Supporting Evidence",
+                    width="large",
+                )
+            ),
+        },
+    )
+
+
+def display_job_match_analysis(
+    job_id: int,
+    candidate_resume: CandidateResumeResult | None,
+) -> None:
+    """Display controls and results for one selected job."""
+
+    st.markdown("#### Personalized Analysis")
+
+    if candidate_resume is None:
+        st.info(
+            "Upload and process a resume to analyze this job."
+        )
+        return
+
+    try:
+        ai_configuration = load_ai_configuration(
+            env_file=ENV_PATH
+        )
+    except AIConfigurationError as exc:
+        st.warning(
+            f"AI matching is not configured correctly: {exc}"
+        )
+        return
+
+    if ai_configuration.provider == AIProvider.DISABLED:
+        st.info(
+            "AI requirement extraction is currently disabled. "
+            "Set AI_PROVIDER in your local .env file to "
+            "openai or ollama to analyze this job."
+        )
+        return
+
+    st.caption(
+        f"Provider: {ai_configuration.provider.value.title()} "
+        f"· Model: {ai_configuration.model}"
+    )
+
+    if "candidate_job_matches" not in st.session_state:
+        st.session_state.candidate_job_matches = {}
+
+    if st.button(
+        "Analyze match",
+        type="primary",
+        key=f"analyze_job_{job_id}",
+    ):
+        with st.spinner(
+            "Extracting requirements and matching resume evidence..."
+        ):
+            try:
+                job = load_job_posting(job_id)
+
+                if job is None:
+                    raise ValueError(
+                        "The selected job could not be found."
+                    )
+
+                service = (
+                    create_candidate_job_match_service(
+                        ai_configuration
+                    )
+                )
+
+                result = service.match(
+                    job,
+                    candidate_resume.evidence,
+                )
+
+            except Exception as exc:
+                st.error(
+                    "The match analysis could not be completed: "
+                    f"{exc}"
+                )
+
+            else:
+                st.session_state.candidate_job_matches[
+                    job_id
+                ] = result
+                st.success(
+                    "Candidate match analysis completed."
+                )
+
+    result = st.session_state.candidate_job_matches.get(
+        job_id
+    )
+
+    if result is not None:
+        display_candidate_job_match(result)
+
 
 def display_job_detail(
     detail: dict[str, object],
+    candidate_resume: CandidateResumeResult | None,
 ) -> None:
     """Display complete information for one selected job."""
 
     st.divider()
     st.subheader("Job Details")
+
+    display_job_match_analysis(
+        int(detail["Job ID"]),
+        candidate_resume,
+    )
+
+    st.divider()
 
     st.markdown(
         f"### {detail['Title']}"
@@ -215,6 +455,8 @@ def display_resume_upload(
                         "Resume processed successfully."
                     )
 
+                st.session_state.candidate_job_matches = {}
+
     result = st.session_state.candidate_resume_result
     filename = st.session_state.candidate_resume_filename
 
@@ -229,6 +471,7 @@ def display_resume_upload(
         ):
             st.session_state.candidate_resume_result = None
             st.session_state.candidate_resume_filename = None
+            st.session_state.candidate_job_matches = {}
             st.rerun()
 
     return result
@@ -383,6 +626,7 @@ def display_companies(
 
 def display_jobs(
     configuration: CompanySourceConfiguration,
+    candidate_resume: CandidateResumeResult | None,
 ) -> None:
     """Display stored job postings with basic filters."""
 
@@ -521,7 +765,10 @@ def display_jobs(
         )
         return
 
-    display_job_detail(detail)
+    display_job_detail(
+    detail,
+    candidate_resume,
+)
 
 def main() -> None:
     """Render the AI Job Scout dashboard."""
@@ -614,7 +861,10 @@ def main() -> None:
     display_companies(configuration)
 
     st.divider()
-    display_jobs(configuration)
+    display_jobs(
+    configuration,
+    candidate_resume,
+)
 
 
 if __name__ == "__main__":

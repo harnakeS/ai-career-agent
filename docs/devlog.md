@@ -861,3 +861,81 @@ The application does not infer personal eligibility or relocation information fr
 - Extract structured requirements for a selected job.
 - Match requirements against the active candidate evidence.
 - Display strengths, gaps, and supporting resume evidence.
+
+---
+
+## 2026-07-23 - Explainable AI-Assisted Candidate Matching
+
+### Implemented
+
+- Added validated AI-provider configuration.
+- Added OpenAI and local Ollama composition.
+- Added configurable Ollama timeouts and generation limits.
+- Disabled Ollama thinking output for structured extraction.
+- Added safe local-model unloading behavior.
+- Added conversion from persisted job records to canonical `JobPosting` models.
+- Added selected-job candidate matching orchestration.
+- Added qualification-section isolation before AI extraction.
+- Added structured requirement alternatives.
+- Added deterministic education-level and field-of-study separation.
+- Added a default canonical vocabulary for production matching.
+- Added vocabulary-aware matching for degree equivalency.
+- Added alternative-value evidence matching.
+- Added explicit résumé-to-description overlap detection.
+- Added complete-term overlap boundaries to prevent short-skill false positives.
+- Added personalized analysis to the Streamlit job-detail view.
+- Added supporting-evidence and explanation tables.
+- Separated missing required qualifications from missing preferred or optional qualifications.
+- Added explicit overlap display that remains independent of AI extraction variability.
+- Increased the automated test suite to 338 passing tests.
+
+### Live Application Result
+
+Personalized analysis was verified with a live Datadog FP&A posting and an uploaded resume using local Ollama model `qwen3.5:4b`.
+
+The dashboard successfully:
+
+- extracted structured job requirements
+- matched the bachelor’s-degree requirement through canonical vocabulary
+- identified missing required qualifications
+- separated missing preferred qualifications
+- displayed Python and SQL as explicit résumé overlap
+- displayed Computer Science and Economics as explicit education overlap
+- preserved overlap evidence even when the local model omitted the corresponding SQL and Python requirement
+- completed analysis without the excessive runtime and resource use encountered with the larger local model
+
+### Architectural Decisions
+
+- AI is responsible for interpreting unstructured qualification text.
+- Structured model output is validated before entering the matching layer.
+- Requirement matching remains deterministic.
+- Explicit description overlap remains separate from requirement satisfaction.
+- Missing preferred qualifications do not increase the required-gap count.
+- User-provided preferences remain separate from resume-derived evidence.
+- The local four-billion-parameter model is treated as a development provider rather than a source of deterministic truth.
+- `qwen3.5:4b` is the current recommended local model for development on the 16 GB Mac.
+- Larger local models are not used synchronously in the Streamlit request path.
+
+### Known Limitations
+
+- Local model extraction may omit qualifications or group them differently between runs.
+- Analysis results are stored only in Streamlit session state.
+- Reanalyzing a job currently invokes the model again.
+- Requirement coverage is not yet a final weighted match score.
+- Date-aware experience aggregation is not yet implemented.
+
+### Validation
+
+- Completed 338 automated tests successfully.
+- Verified local Ollama analysis through Streamlit.
+- Verified explicit Python, SQL, Computer Science, and Economics overlap.
+- Verified bachelor’s-degree vocabulary matching.
+- Verified separate required and preferred qualification counts.
+- Verified supporting evidence and explanations in the dashboard.
+
+### Next
+
+- Persist and cache structured requirement extraction.
+- Persist candidate-to-job analysis results.
+- Add deterministic weighted job scoring.
+- Rank stored jobs by personalized match quality.

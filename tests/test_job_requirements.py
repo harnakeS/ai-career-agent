@@ -186,3 +186,34 @@ def test_get_preferred_returns_all_preferred_requirements() -> None:
 def test_requirement_categories_include_general_job_constraints() -> None:
     assert RequirementCategory.LICENSE.value == "license"
     assert RequirementCategory.SCHEDULE.value == "schedule"
+
+def test_requirement_returns_all_acceptable_values() -> None:
+    requirement = Requirement(
+        category=RequirementCategory.SKILL,
+        importance=RequirementImportance.REQUIRED,
+        value="SQL",
+        alternatives=["Python", "R"],
+    )
+
+    assert requirement.acceptable_values == [
+        "SQL",
+        "Python",
+        "R",
+    ]
+
+
+def test_requirement_alternative_lists_are_not_shared() -> None:
+    first = Requirement(
+        category=RequirementCategory.SKILL,
+        importance=RequirementImportance.REQUIRED,
+        value="Python",
+    )
+    second = Requirement(
+        category=RequirementCategory.SKILL,
+        importance=RequirementImportance.REQUIRED,
+        value="SQL",
+    )
+
+    first.alternatives.append("Java")
+
+    assert second.alternatives == []

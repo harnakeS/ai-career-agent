@@ -105,3 +105,63 @@ def test_llm_extractor_sends_job_description_to_client() -> None:
     assert client.user_prompt is not None
     assert "Registered Nurse" in client.user_prompt
     assert "active RN license is required" in client.user_prompt
+
+def test_system_prompt_requires_atomic_requirement_values() -> None:
+    assert "concise, atomic value" in SYSTEM_PROMPT
+    assert "separate independent qualifications" in SYSTEM_PROMPT
+
+
+def test_system_prompt_distinguishes_and_from_or() -> None:
+    assert "Python or SQL" in SYSTEM_PROMPT
+    assert "Python and SQL" in SYSTEM_PROMPT
+    assert "alternatives" in SYSTEM_PROMPT
+
+def test_system_prompt_separates_duration_from_domain() -> None:
+    assert "At least 24 months" in SYSTEM_PROMPT
+    assert "Corporate Finance" in SYSTEM_PROMPT
+    assert "Data Analytics" in SYSTEM_PROMPT
+    assert "two experience requirements" in SYSTEM_PROMPT
+
+
+def test_system_prompt_separates_competency_from_tools() -> None:
+    assert (
+        "Experience in data analytics using SQL, Python, or R"
+        in SYSTEM_PROMPT
+    )
+    assert "two requirements" in SYSTEM_PROMPT
+    assert "category: experience" in SYSTEM_PROMPT
+    assert "category: skill" in SYSTEM_PROMPT
+
+def test_build_user_prompt_uses_qualification_sections() -> None:
+    job = JobPosting(
+        source="test",
+        external_id="job-456",
+        requisition_id="REQ-456",
+        company="Example Company",
+        title="Data Analyst",
+        location="New York, NY",
+        description="""
+**What You’ll Do:**
+
+- Build reports for management.
+
+**Who You Are:**
+
+- Experience using SQL or Python.
+- Bachelor's degree in computer science.
+
+**Benefits:**
+
+- Health insurance.
+""".strip(),
+        application_url=(
+            "https://example.com/jobs/job-456"
+        ),
+    )
+
+    prompt = build_user_prompt(job)
+
+    assert "Experience using SQL or Python" in prompt
+    assert "Bachelor's degree" in prompt
+    assert "Build reports for management" not in prompt
+    assert "Health insurance" not in prompt
