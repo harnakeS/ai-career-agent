@@ -120,7 +120,7 @@ def load_ai_configuration(
     default_models = {
         AIProvider.DISABLED: None,
         AIProvider.OPENAI: "gpt-4.1-mini",
-        AIProvider.OLLAMA: "qwen3:4b",
+        AIProvider.OLLAMA: "qwen3.5:4b",
     }
 
     configured_model = (

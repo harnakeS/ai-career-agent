@@ -939,3 +939,49 @@ The dashboard successfully:
 - Persist candidate-to-job analysis results.
 - Add deterministic weighted job scoring.
 - Rank stored jobs by personalized match quality.
+
+---
+
+## 2026-07-23 - Persistent Job Requirements Cache
+
+### Implemented
+
+- Added a SQLite model for cached job requirements.
+- Added provider, model, and extractor-version cache identity.
+- Added SHA-256 job-description digests.
+- Added automatic cache invalidation when a posting changes.
+- Added deterministic `JobRequirements` JSON serialization and validation.
+- Added stale-result replacement without duplicate cache records.
+- Added a cache-aware requirement extraction service.
+- Prevented repeated AI calls for unchanged stored jobs.
+- Preserved ordinary extraction behavior for jobs not stored locally.
+- Avoided holding database sessions open during AI inference.
+- Connected the persistent cache through production composition.
+- Updated the default local Ollama model to `qwen3.5:4b`.
+- Increased the automated test suite to 345 passing tests.
+
+### Architectural Decisions
+
+- Job requirements are cached independently from candidate evidence.
+- Uploaded resume content is not persisted in the requirements cache.
+- Cache validity depends on the job description, AI provider, model, and extractor version.
+- AI inference runs outside database sessions.
+- Database transaction ownership remains explicit.
+- The first cache implementation uses the existing local SQLite database.
+
+### Validation
+
+- Completed 345 automated tests successfully.
+- Verified requirement serialization and retrieval.
+- Verified changed descriptions invalidate cached results.
+- Verified stale entries are updated instead of duplicated.
+- Verified different models and extractor versions do not share results.
+- Verified repeated extraction invokes the AI extractor only once.
+- Verified the cache table is created in the local application database.
+
+### Next
+
+- Expose cache usage in the Streamlit analysis interface.
+- Verify that a repeated analysis completes without another Ollama call.
+- Persist candidate-to-job match summaries.
+- Add deterministic weighted job scoring.

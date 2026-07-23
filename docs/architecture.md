@@ -567,7 +567,7 @@ Job Table and Job Detail View
 
 ## Testing
 
-Test Count: 338
+Test Count: 345
 
 The project currently uses `pytest`.
 
@@ -676,6 +676,12 @@ Existing tests cover:
 - Explicit résumé-to-description overlap detection
 - Description-overlap boundary matching
 - Personalized dashboard analysis view models
+- Job-requirements cache round trips
+- Description-change cache invalidation
+- Provider, model, and extractor-version cache isolation
+- Stale cache replacement
+- Repeated extraction AI-call prevention
+- Unstored-job cache bypass
 
 Tests are added before major features are integrated into the live pipeline.
 
@@ -710,7 +716,7 @@ The current version has several known limitations:
 - Selected-company scans are manually initiated and are not yet scheduled.
 - Match scores are not yet category weighted.
 - Semantic similarity is not yet implemented.
-- Personalized match results currently remain in Streamlit session state and are not persisted.
+- Extracted job requirements are persisted, but personalized candidate match results remain in Streamlit session state.
 - Small local language models may omit qualifications or produce different requirement groupings between runs.
 - Explicit résumé overlap protects visible evidence alignment but does not replace complete requirement extraction.
 - Requirement coverage is not yet converted into a final weighted job-match score.
@@ -802,7 +808,7 @@ Requirement Evidence Matcher
 - [x] Isolate qualification-focused description text
 - [x] Match requirements against candidate evidence
 - [x] Display requirement matches in the dashboard
-- [ ] Persist extracted requirements and match results
+- [x] Persist extracted requirements and match results
 - [ ] Integrate requirement-based scoring
 
 ---
@@ -935,6 +941,28 @@ Complete Job Description
 DescriptionEvidenceOverlapMatcher
         ↓
 Explicit Resume Overlap
+
+---
+
+## Persistent Requirements Cache
+
+AI-extracted job requirements are cached independently from candidate evidence.
+
+Canonical JobPosting
+        ↓
+Stored Job Lookup
+        ↓
+Requirements Cache Lookup
+        ├── Cache Hit → JobRequirements
+        └── Cache Miss
+                ↓
+            AI Extraction
+                ↓
+            Deterministic Conversion
+                ↓
+            JobRequirements
+                ↓
+            SQLite Cache
 
 ---
 

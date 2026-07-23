@@ -140,6 +140,10 @@ Automatically transform a resume into structured candidate data that drives job 
 - Required and preferred qualification separation
 - Explicit résumé-to-description overlap detection
 - Hybrid candidate-to-job analysis
+- Persistent extracted-requirements cache
+- Description-digest cache invalidation
+- Provider, model, and extractor-version cache isolation
+- Cache-aware AI extraction service
 
 ### Next
 
@@ -147,7 +151,6 @@ Automatically transform a resume into structured candidate data that drives job 
 
 - Persist extracted requirements
 - Cache completed AI analyses by job and model
-- Persist candidate-to-job match results
 - Add deterministic weighted job scoring
 - Add date-aware experience aggregation
 - Expand certification and license vocabulary

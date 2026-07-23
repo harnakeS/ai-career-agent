@@ -33,6 +33,9 @@ from app.matching.normalizer import RequirementNormalizer
 from app.vocabulary.defaults import (
     create_default_vocabulary_repository,
 )
+from app.parsing.requirements.cache_service import (
+    CachedRequirementsExtractionService,
+)
 
 
 def create_selected_company_pipeline(
@@ -111,9 +114,19 @@ def create_candidate_job_match_service(
         client=client
     )
 
-    requirements_service = (
+    base_requirements_service = (
         RequirementsExtractionService(
             extractor=extractor
+        )
+    )
+
+    requirements_service = (
+        CachedRequirementsExtractionService(
+            delegate=base_requirements_service,
+            session_factory=SessionLocal,
+            provider=configuration.provider.value,
+            model_name=configuration.model,
+            extractor_version="1",
         )
     )
 

@@ -80,7 +80,7 @@ def test_loads_ollama_configuration() -> None:
         configuration.provider
         == AIProvider.OLLAMA
     )
-    assert configuration.model == "qwen3:4b"
+    assert configuration.model == "qwen3.5:4b"
     assert (
         configuration.ollama_host
         == "http://example-host:11434"

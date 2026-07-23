@@ -4,10 +4,6 @@ from app.parsing.requirements.converter import (
     convert_extracted_requirements,
 )
 from app.parsing.requirements.extractor import RequirementsExtractor
-from app.matching.description_overlap import (
-    DescriptionEvidenceOverlapMatcher,
-    DescriptionEvidenceOverlapResult,
-)
 
 
 class RequirementsExtractionService:
