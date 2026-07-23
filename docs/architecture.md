@@ -567,7 +567,7 @@ Job Table and Job Detail View
 
 ## Testing
 
-Test Count: 345
+Test Count: 346
 
 The project currently uses `pytest`.
 
@@ -682,6 +682,7 @@ Existing tests cover:
 - Stale cache replacement
 - Repeated extraction AI-call prevention
 - Unstored-job cache bypass
+- Requirements-cache metadata propagation
 
 Tests are added before major features are integrated into the live pipeline.
 
@@ -963,6 +964,15 @@ Requirements Cache Lookup
             JobRequirements
                 ↓
             SQLite Cache
+
+The extraction service returns metadata indicating whether the requirements came from a new AI extraction or a cache hit.
+
+This metadata is propagated through `CandidateJobMatchResult` and displayed in the Streamlit interface.
+
+The dashboard therefore communicates whether:
+
+- the AI provider was invoked and the result was cached
+- existing structured requirements were loaded from SQLite
 
 ---
 

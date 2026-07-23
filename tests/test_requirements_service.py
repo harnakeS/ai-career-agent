@@ -1,5 +1,6 @@
 from app.models.job import JobPosting
 from app.models.job_requirements import (
+    JobRequirements,
     RequirementCategory,
     RequirementImportance,
 )
@@ -13,7 +14,6 @@ from app.parsing.requirements.schema import (
 from app.parsing.requirements.service import (
     RequirementsExtractionService,
 )
-
 
 def create_job() -> JobPosting:
     return JobPosting(
@@ -111,3 +111,19 @@ def test_service_preserves_extracted_metadata() -> None:
     assert result.entry_level is False
     assert result.work_authorization_required is True
     assert result.sponsorship_available is False
+
+def test_metadata_reports_uncached_extraction() -> None:
+    extractor = StubRequirementsExtractor(
+        ExtractedJobRequirements()
+    )
+
+    service = RequirementsExtractionService(
+        extractor
+    )
+
+    result = service.extract_with_metadata(
+        create_job()
+    )
+
+    assert result.requirements == JobRequirements()
+    assert result.cache_hit is False

@@ -112,6 +112,7 @@ def test_matches_extracted_requirements_to_evidence() -> None:
         .evidence.value
         == "Python"
     )
+    assert result.requirements_cache_hit is False
 
     matched = (
         result.evidence_matches

@@ -12,6 +12,8 @@ from app.models.job_requirements import (
 )
 from app.parsing.requirements.service import (
     RequirementsExtractionService,
+    RequirementsExtractionResult,
+
 )
 
 
@@ -44,6 +46,16 @@ class CachedRequirementsExtractionService(
         self,
         job: JobPosting,
     ) -> JobRequirements:
+        return self.extract_with_metadata(
+            job
+        ).requirements
+
+    def extract_with_metadata(
+        self,
+        job: JobPosting,
+    ) -> RequirementsExtractionResult:
+        """Return cached requirements or extract and persist them."""
+
         job_id = self._find_job_id(job)
 
         if job_id is not None:
@@ -53,7 +65,10 @@ class CachedRequirementsExtractionService(
             )
 
             if cached is not None:
-                return cached
+                return RequirementsExtractionResult(
+                    requirements=cached,
+                    cache_hit=True,
+                )
 
         requirements = self._delegate.extract(job)
 
@@ -64,7 +79,10 @@ class CachedRequirementsExtractionService(
                 requirements=requirements,
             )
 
-        return requirements
+        return RequirementsExtractionResult(
+            requirements=requirements,
+            cache_hit=False,
+        )
 
     def _find_job_id(
         self,

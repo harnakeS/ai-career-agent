@@ -958,7 +958,25 @@ The dashboard successfully:
 - Avoided holding database sessions open during AI inference.
 - Connected the persistent cache through production composition.
 - Updated the default local Ollama model to `qwen3.5:4b`.
-- Increased the automated test suite to 345 passing tests.
+- Increased the automated test suite to 346 passing tests.
+- Added extraction metadata for cache hits and misses.
+- Propagated cache-source metadata through candidate matching.
+- Displayed cache usage in the Streamlit analysis interface.
+- Added separate success messages for new extraction and cached analysis.
+
+### Live Application Result
+
+The cache was verified through the Streamlit dashboard using the same stored job and candidate resume.
+
+The first analysis used structured requirements already persisted for the configured provider, model, extractor version, and job description.
+
+The repeated analysis:
+
+- reported SQLite as the requirement source
+- did not invoke Ollama
+- reused the validated cached requirements
+- completed immediately
+- preserved the same deterministic evidence matching and overlap results
 
 ### Architectural Decisions
 
@@ -971,17 +989,19 @@ The dashboard successfully:
 
 ### Validation
 
-- Completed 345 automated tests successfully.
+- Completed 346 automated tests successfully.
 - Verified requirement serialization and retrieval.
 - Verified changed descriptions invalidate cached results.
 - Verified stale entries are updated instead of duplicated.
 - Verified different models and extractor versions do not share results.
 - Verified repeated extraction invokes the AI extractor only once.
 - Verified the cache table is created in the local application database.
+- Verified cache-hit metadata propagation.
+- Verified cache-source messaging in Streamlit.
+- Verified repeated analysis completed immediately without invoking Ollama.
 
 ### Next
 
-- Expose cache usage in the Streamlit analysis interface.
-- Verify that a repeated analysis completes without another Ollama call.
 - Persist candidate-to-job match summaries.
 - Add deterministic weighted job scoring.
+- Rank stored jobs by personalized match quality.

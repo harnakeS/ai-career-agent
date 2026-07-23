@@ -127,6 +127,17 @@ def display_candidate_job_match(
 
     st.markdown("#### Candidate Match")
 
+    if result.requirements_cache_hit:
+        st.caption(
+            "Requirement source: SQLite cache. "
+            "Ollama was not invoked for this analysis."
+        )
+    else:
+        st.caption(
+            "Requirement source: New AI extraction. "
+            "The structured requirements were saved for reuse."
+        )
+
     metrics = st.columns(5)
 
     metrics[0].metric(
@@ -309,9 +320,16 @@ def display_job_match_analysis(
                 st.session_state.candidate_job_matches[
                     job_id
                 ] = result
-                st.success(
-                    "Candidate match analysis completed."
-                )
+                if result.requirements_cache_hit:
+                    st.success(
+                        "Candidate match analysis completed "
+                        "using cached job requirements."
+                    )
+                else:
+                    st.success(
+                        "Candidate match analysis completed. "
+                        "The extracted requirements were cached."
+                    )
 
     result = st.session_state.candidate_job_matches.get(
         job_id

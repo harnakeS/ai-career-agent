@@ -29,6 +29,7 @@ class CandidateJobMatchResult:
     requirements: JobRequirements
     evidence_matches: EvidenceMatchResult
     description_overlaps: DescriptionEvidenceOverlapResult
+    requirements_cache_hit: bool = False
 
     @property
     def matched_count(self) -> int:
@@ -117,9 +118,12 @@ class CandidateJobMatchService:
     ) -> CandidateJobMatchResult:
         """Extract and match requirements for one selected job."""
 
-        requirements = (
-            self._requirements_service.extract(job)
+        extraction_result = (
+            self._requirements_service
+            .extract_with_metadata(job)
         )
+
+        requirements = extraction_result.requirements
 
         evidence_matches = (
             self._evidence_matcher.match(
@@ -140,4 +144,7 @@ class CandidateJobMatchService:
             requirements=requirements,
             evidence_matches=evidence_matches,
             description_overlaps=description_overlaps,
+            requirements_cache_hit=(
+                extraction_result.cache_hit
+            ),
         )

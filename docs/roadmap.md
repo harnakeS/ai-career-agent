@@ -283,6 +283,7 @@ Provide a single interface for managing my job search.
 - [x] Display unsupported requirement categories
 - [x] Display explicit résumé-to-description overlap
 - [x] Run personalized analysis for a selected job
+- [x] Display whether personalized analysis used cached requirements
 
 ### Planned
 

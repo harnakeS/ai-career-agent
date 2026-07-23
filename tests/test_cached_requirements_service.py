@@ -141,10 +141,15 @@ def test_repeated_extraction_invokes_ai_once(
         extractor,
     )
 
-    first_result = service.extract(job)
-    second_result = service.extract(job)
+    first_result = service.extract_with_metadata(job)
+    second_result = service.extract_with_metadata(job)
 
-    assert first_result == second_result
+    assert (
+        first_result.requirements
+        == second_result.requirements
+    )
+    assert first_result.cache_hit is False
+    assert second_result.cache_hit is True
     assert extractor.call_count == 1
 
 
